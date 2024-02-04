@@ -78,11 +78,11 @@ while running:
     elif game_screen == screens[1]:
         title_button.draw(screen)
         if play_button.draw(screen):
-            game_screen = screens[4]
+            game_screen = screens[2]
 
 
-    elif game_screen == screens[1]:
-        pass
+    elif game_screen == screens[2]:
+        passqlqlqlqlql
 
 
     elif game_screen == screens[3]:
