@@ -1,43 +1,97 @@
-# Example file showing a circle moving on screen
 import pygame
+# import button.py custom module
+import button
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Battle Ships (Main Menu)")
 clock = pygame.time.Clock()
 running = True
 dt = 0
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+# game variables
+screens = ["Startup Animation", "Main Menu", "1P Options", "2P Options", "Game"]
+game_screen = screens[0]
+# define fonts
+font = pygame.font.SysFont("arialblack", 40)
+
+# define colours
+TEXT_COL = (225, 225, 225)
+
+# load button images
+title_img = pygame.image.load("images/title.png").convert_alpha()
+play_img = pygame.image.load("images/button_play.png").convert_alpha()
+
+# create button instances
+title_button = button.Button(SCREEN_WIDTH/2, 100, title_img, 7)
+play_button = button.Button(SCREEN_WIDTH/2, 500, play_img, 3)
+
+# load sounds
+startup_sfx1 = pygame.mixer.Sound("sounds/SFX/Explosion1.wav")
+startup_sfx1.set_volume(0.5)
+startup_sfx2 = pygame.mixer.Sound("sounds\SFX\Blip1")
+startup_sfx2.set_volume(0.5)
+
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img, (x, y))
+
+startup_ticks = 0
 
 while running:
     # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
+        # pygame.QUIT event means the user clicked X to close your window
         if event.type == pygame.QUIT:
             running = False
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    screen.fill((52, 78, 91))
 
-    pygame.draw.circle(screen, "red", player_pos, 40)
+    if game_screen == screens[0]:
+        
+        if startup_ticks > 170:
+            game_screen = screens[1]
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
+        if 30 < startup_ticks < 50:
+            title_button = button.Button(SCREEN_WIDTH/2, 100, title_img, (7+((50-startup_ticks)*1)))
+            title_button.draw(screen)
+        elif startup_ticks == 50:
+            title_button = button.Button(SCREEN_WIDTH/2, 100, title_img, 7)
+            title_button.draw(screen)
+            pygame.mixer.Sound.play(startup_sfx1)
+        elif startup_ticks > 50:
+            title_button.draw(screen)
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
+        if startup_ticks == 90:
+            pygame.mixer.Sound.play(startup_sfx2)
+        if startup_ticks >= 90:
+            play_button.draw(screen)
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
+        startup_ticks += 1
+
+
+    elif game_screen == screens[1]:
+        title_button.draw(screen)
+        if play_button.draw(screen):
+            game_screen = screens[4]
+
+
+    elif game_screen == screens[1]:
+        pass
+
+
+    elif game_screen == screens[3]:
+        draw_text("Press SPACE to pause", font, TEXT_COL, 160, 250)
+
+
+
     dt = clock.tick(60) / 1000
+
+    pygame.display.update()
 
 pygame.quit()
