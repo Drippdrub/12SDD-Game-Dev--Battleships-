@@ -3,8 +3,11 @@ import button
 
 pygame.init()
 pygame.display.set_caption("barebones")
-screen = pygame.display.set_mode((720, 720),0,32)
-display = pygame.Surface((300, 300))
+screen = pygame.display.set_mode((1280, 720),0,32)
+display = pygame.Surface((600, 600))
+placementGrid = pygame.Surface((500, 500))
+P1Grid = pygame.Surface((500, 500))
+P2Grid = pygame.Surface((500, 500))
 
 clock = pygame.time.Clock()
 
@@ -36,12 +39,14 @@ battleship1_tile = pygame.image.load("images\isometric tiles/bttlship1.png").con
 battleship2_tile = pygame.image.load("images\isometric tiles/bttlship2.png").convert_alpha()
 battleship3_tile = pygame.image.load("images\isometric tiles\cruiser3.png").convert_alpha()
 battleshipC_tile = pygame.image.load("images\isometric tiles\cruiserC.png").convert_alpha()
+battleshipX_tile = pygame.image.load("images\isometric tiles\cruiserX.png").convert_alpha()
 
 carrier1_tile = pygame.image.load("images\isometric tiles\carrier1.png").convert_alpha()
 carrier2_tile = pygame.image.load("images\isometric tiles\carrier2.png").convert_alpha()
 carrier3_tile = pygame.image.load("images\isometric tiles\carrier3.png").convert_alpha()
 carrier4_tile = pygame.image.load("images\isometric tiles\carrier4.png").convert_alpha()
 carrierC_tile = pygame.image.load("images\isometric tiles\carrierC.png").convert_alpha()
+carrierX_tile = pygame.image.load("images\isometric tiles\carrierX.png").convert_alpha()
 
 game_screen = "boat placing"
 
@@ -59,16 +64,20 @@ TestArr = [
 ]
 
 P1Boats = [
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
+    [99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
 ]
 
 StoredBoats = [1, 1, 1, 1, 1]
@@ -78,16 +87,45 @@ def switch(screen):
     game_screen = screen
     print(screen)
 
+selected_boat = 0
+cur_boat_len = 2
 selected_cell = pygame.Vector2(0,0)
 mov_cd = 0
 rot_cd = 0
 cursor_dir = 0
+swap_cd = 0
+bad_cell = False
+
+destroyer: dict = {1: dstryr1_tile}
+submarine: dict = {1: sub2_tile,
+                    2: sub1_tile}
+cruiser: dict = {1: cruiser2_tile,
+                    2: cruiser1_tile
+                    }
+battleship: dict = {1: battleship2_tile,
+                    2: battleship2_tile,
+                    3: battleship1_tile,
+                    }
+carrier: dict = {1: carrier2_tile,
+                    2: carrier3_tile,
+                    3: carrier2_tile,
+                    4: carrier1_tile
+                    }
+boats: dict = {0: destroyer,
+                1: submarine,
+                2: cruiser,
+                3: battleship,
+                4: carrier
+                }
 
 running = True
 while running:
 
     screen.fill((0, 0, 0))
     display.fill((0, 0, 0))
+    placementGrid.fill((0, 0, 0))
+    P1Grid.fill((0, 0, 0))
+    P2Grid.fill((0, 0, 0))
 
     for event in pygame.event.get():
         # pygame.QUIT event means the user clicked X to close your window
@@ -96,7 +134,8 @@ while running:
 
     if game_screen == "options":
         switch("boat placing")
-        selected_boat = "dstryr"
+        selected_boat = 0
+        cur_boat_len = 2
         selected_cell = pygame.Vector2(0,0)
         mov_cd = 0
 
@@ -107,36 +146,112 @@ while running:
                 ydil = 8
                 keys = pygame.key.get_pressed()
 
+                if keys[pygame.K_1]:
+                    selected_boat = 0
+                    cur_boat_len = 2
+                if keys[pygame.K_2]:
+                    selected_boat = 1
+                    cur_boat_len = 3
+                if keys[pygame.K_3]:
+                    selected_boat = 2
+                    cur_boat_len = 3
+                if keys[pygame.K_4]:
+                    selected_boat = 3
+                    cur_boat_len = 4
+                if keys[pygame.K_5]:
+                    selected_boat = 4
+                    cur_boat_len = 5
+
                 if mov_cd <= 0:
                     if keys[pygame.K_w] and selected_cell.y > 0:
                         selected_cell.y -= 1
-                        mov_cd = 1500
+                        mov_cd = 15
                     if keys[pygame.K_s] and selected_cell.y < 9:
                         selected_cell.y += 1
-                        mov_cd = 1500
+                        mov_cd = 15
                     if keys[pygame.K_a] and selected_cell.x > 0:
                         selected_cell.x -= 1
-                        mov_cd = 1500
+                        mov_cd = 15
                     if keys[pygame.K_d] and selected_cell.x < 9:
                         selected_cell.x += 1
-                        mov_cd = 1500
+                        mov_cd = 15
                 
                 if rot_cd <= 0 and keys[pygame.K_r]:
                     cursor_dir = cursor_dir*(-1) + 1
-                    rot_cd = 1500
+                    rot_cd = 50
+                
+                if swap_cd <= 0 and keys[pygame.K_e]:
+                    if cursor_dir == 0:
+                        for i in range(1, cur_boat_len):
+                            
 
-                mov_cd -= 1
-                rot_cd -= 1
-
-                # pygame.draw.rect(display, (255, 255, 255), pygame.Rect(x*10, y*10, 10, 10), 1)
-                funcs: dict = {00: sea_tile}
-                tile_sprite = funcs.get(tile, sea_tile)
+                funcs: dict = {00: sea_tile,
+                            10: dstryr2_tile,
+                            11: dstryr1_tile,
+                            20: sub3_tile,
+                            21: sub2_tile,
+                            22: sub1_tile,
+                            30: cruiser3_tile,
+                            31: cruiser2_tile,
+                            32: cruiser1_tile,
+                            40: cruiser3_tile,
+                            41: cruiser2_tile,
+                            42: battleship2_tile,
+                            43: battleship1_tile,
+                            50: carrier4_tile,
+                            51: carrier2_tile,
+                            52: carrier3_tile,
+                            53: carrier2_tile,
+                            54: carrier1_tile
+                            }
+                tile_sprite = funcs.get(tile, "blank")
                 if (x == selected_cell.x) and (y == selected_cell.y):
-                    tile_sprite = dstryrC_tile
-                if tile_sprite == sea_tile or cursor_dir == 0:
-                    display.blit(tile_sprite, (150+x*xdil-y*xdil, 0+x*ydil+y*ydil))
+                    if ((cursor_dir == 0) and (selected_cell.x + cur_boat_len < 11)) or ((cursor_dir == 1) and (selected_cell.y + cur_boat_len < 11)):
+                        funcs: dict = {0: dstryrC_tile,
+                                1: subC_tile,
+                                2: cruiserC_tile,
+                                3: battleshipC_tile,
+                                4: carrierC_tile
+                                }
+                    else:
+                        funcs: dict = {0: dstryrX_tile,
+                                1: subX_tile,
+                                2: cruiserX_tile,
+                                3: battleshipX_tile,
+                                4: carrierX_tile
+                                }
+                    tile_sprite = funcs.get(selected_boat, "blank")
+                if cursor_dir == 0:
+                    if (x > selected_cell.x and x < (selected_cell.x + cur_boat_len)):
+                        for i in range(1, cur_boat_len):
+                            if y == selected_cell.y and x == selected_cell.x + i:
+                                tile_sprite = boats.get(selected_boat).get(i)
+                                if tile_sprite != "blank":
+                                    if x > 9 or bad_cell == True:
+                                        tile_sprite.set_alpha(155)
+                                    else:
+                                        tile_sprite.set_alpha(255)
+
                 else:
-                    display.blit(pygame.transform.flip(tile_sprite, True, False), (150+x*xdil-y*xdil, 0+x*ydil+y*ydil))
+                    if (y > selected_cell.y and y < (selected_cell.y + cur_boat_len)):
+                        for i in range(1, cur_boat_len):
+                            if x == selected_cell.x and y == selected_cell.y + i:
+                                tile_sprite = boats.get(selected_boat).get(i)
+                                if tile_sprite != "blank":
+                                    if y > 9:
+                                        tile_sprite.set_alpha(128)
+                                    else:
+                                        tile_sprite.set_alpha(255)
+                if tile_sprite == "blank":
+                    pass
+                elif tile_sprite == sea_tile or cursor_dir == 0:
+                    placementGrid.blit(tile_sprite, (150+x*xdil-y*xdil, 0+x*ydil+y*ydil))
+                else:
+                    placementGrid.blit(pygame.transform.flip(tile_sprite, True, False), (150+x*xdil-y*xdil, 0+x*ydil+y*ydil))
+        
+        mov_cd -= 1
+        rot_cd -= 1
+        swap_cd -= 1
 
         # switch("game")
         
@@ -169,7 +284,7 @@ while running:
                 display.blit(tile_sprite, (150+x*xdil-y*xdil, 0+x*ydil+y*ydil))
     
     dt = clock.tick(60) / 1000
-    screen.blit(pygame.transform.scale(display, screen.get_size()), (0,0))
+    screen.blit(pygame.transform.scale(placementGrid, (screen.get_width()/1.2, screen.get_width()/1.2)), (450,50))
     pygame.display.update()
 
 pygame.quit()
