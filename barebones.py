@@ -37,7 +37,8 @@ cruiserC_tile = pygame.image.load("images\isometric tiles\cruiserC.png").convert
 
 battleship1_tile = pygame.image.load("images\isometric tiles/bttlship1.png").convert_alpha()
 battleship2_tile = pygame.image.load("images\isometric tiles/bttlship2.png").convert_alpha()
-battleship3_tile = pygame.image.load("images\isometric tiles\cruiser3.png").convert_alpha()
+battleship3_tile = pygame.image.load("images\isometric tiles/bttlship2.png").convert_alpha()
+battleship4_tile = pygame.image.load("images\isometric tiles\cruiser3.png").convert_alpha()
 battleshipC_tile = pygame.image.load("images\isometric tiles\cruiserC.png").convert_alpha()
 battleshipX_tile = pygame.image.load("images\isometric tiles\cruiserX.png").convert_alpha()
 
@@ -95,18 +96,26 @@ rot_cd = 0
 cursor_dir = 0
 swap_cd = 0
 bad_cell = False
+stamp_cd = 0
 
-destroyer: dict = {1: dstryr1_tile}
-submarine: dict = {1: sub2_tile,
-                    2: sub1_tile}
-cruiser: dict = {1: cruiser2_tile,
+destroyer: dict = {0: dstryr2_tile,
+                    1: dstryr1_tile
+                    }
+submarine: dict = {0: sub3_tile,
+                    1: sub2_tile,
+                    2: sub1_tile
+                    }
+cruiser: dict = {0: cruiser3_tile,
+                    1: cruiser2_tile,
                     2: cruiser1_tile
                     }
-battleship: dict = {1: battleship2_tile,
+battleship: dict = {0: battleship4_tile,
+                    1: battleship3_tile,
                     2: battleship2_tile,
-                    3: battleship1_tile,
+                    3: battleship1_tile
                     }
-carrier: dict = {1: carrier2_tile,
+carrier: dict = {0: carrier4_tile,
+                    1: carrier2_tile,
                     2: carrier3_tile,
                     3: carrier2_tile,
                     4: carrier1_tile
@@ -115,8 +124,15 @@ boats: dict = {0: destroyer,
                 1: submarine,
                 2: cruiser,
                 3: battleship,
-                4: carrier
+                4: carrier,
+                5: "none"
                 }
+boat_len: dict = {0: 2,
+                  1: 3,
+                  2: 3,
+                  3: 4,
+                  4: 5,
+                  5: 0}
 
 running = True
 while running:
@@ -149,19 +165,19 @@ while running:
 
                 if keys[pygame.K_1]:
                     selected_boat = 0
-                    cur_boat_len = 2
+                    cur_boat_len = boat_len[selected_boat]
                 if keys[pygame.K_2]:
                     selected_boat = 1
-                    cur_boat_len = 3
+                    cur_boat_len = boat_len[selected_boat]
                 if keys[pygame.K_3]:
                     selected_boat = 2
-                    cur_boat_len = 3
+                    cur_boat_len = boat_len[selected_boat]
                 if keys[pygame.K_4]:
                     selected_boat = 3
-                    cur_boat_len = 4
+                    cur_boat_len = boat_len[selected_boat]
                 if keys[pygame.K_5]:
                     selected_boat = 4
-                    cur_boat_len = 5
+                    cur_boat_len = boat_len[selected_boat]
 
                 if mov_cd <= 0:
                     if keys[pygame.K_w] and selected_cell.y > 0:
@@ -189,13 +205,7 @@ while running:
                             bad_cell = True
                 else:
                     bad_cell = False
-                                
                 
-                if swap_cd <= 0 and keys[pygame.K_e]:
-                    if cursor_dir == 0:
-                        for i in range(1, cur_boat_len):
-                            pass
-
                 funcs: dict = {00: sea_tile,
                             10: dstryr2_tile,
                             11: dstryr1_tile,
@@ -205,8 +215,8 @@ while running:
                             30: cruiser3_tile,
                             31: cruiser2_tile,
                             32: cruiser1_tile,
-                            40: cruiser3_tile,
-                            41: cruiser2_tile,
+                            40: battleship4_tile,
+                            41: battleship3_tile,
                             42: battleship2_tile,
                             43: battleship1_tile,
                             50: carrier4_tile,
@@ -216,8 +226,62 @@ while running:
                             54: carrier1_tile
                             }
                 tile_sprite = funcs.get(tile, "blank")
+                    
+                funcs: dict = {sea_tile: 00,
+                            dstryr2_tile: 10,
+                            dstryr1_tile: 11,
+                            sub3_tile: 20,
+                            sub2_tile: 21,
+                            sub1_tile: 22,
+                            cruiser3_tile: 30,
+                            cruiser2_tile: 31,
+                            cruiser1_tile: 32,
+                            battleship4_tile: 40,
+                            battleship3_tile: 41,
+                            battleship2_tile: 42,
+                            battleship1_tile: 43,
+                            carrier4_tile: 50,
+                            carrier2_tile: 51,
+                            carrier3_tile: 52,
+                            carrier2_tile: 53,
+                            carrier1_tile: 54
+                            }
+                
+                if stamp_cd <= 0 and keys[pygame.K_e]:
+                    for i, line in enumerate(P1Boats):
+                        for j, cell in enumerate(line):
+                            for e in range(1, cur_boat_len + 1):
+                                if i == selected_cell.x and j == selected_cell.y:
+                                    if cursor_dir == 0 and P1Boats[j][i+e-1] != 00:
+                                        bad_cell = True
+                                    if cursor_dir == 1 and P1Boats[j+e-1][i] != 00:
+                                        bad_cell = True
+                            if bad_cell == False:
+                                for e in range(1, cur_boat_len + 1):
+                                    if cursor_dir == 0 and (i == selected_cell.x + e - 1) and (j == selected_cell.y):
+                                        P1Boats[j][i] = funcs.get(boats.get(selected_boat).get(e - 1), 99)
+                                    if cursor_dir == 1 and (i == selected_cell.x) and (j == selected_cell.y + e - 1):
+                                        P1Boats[j][i] = funcs.get(boats.get(selected_boat).get(e - 1), 99)
+                    if bad_cell == False:
+                        StoredBoats[selected_boat] = 0
+                        i = 0
+                        store_clear = True
+                        for boat in StoredBoats:
+                            if boat == 1:
+                                selected_boat = i
+                                print(selected_boat)
+                                print("break")
+                                store_clear = False
+                                break
+                            i += 1
+                        if store_clear == True:
+                        cur_boat_len = boat_len[selected_boat]
+                        stamp_cd = 30
+                                    
+                            
+
+                
                 if (x == selected_cell.x) and (y == selected_cell.y):
-                    print(bad_cell)
                     if (((cursor_dir == 0) and (selected_cell.x + cur_boat_len < 11)) or ((cursor_dir == 1) and (selected_cell.y + cur_boat_len < 11))) and bad_cell == False:
                         funcs: dict = {0: dstryrC_tile,
                                 1: subC_tile,
@@ -264,6 +328,7 @@ while running:
         mov_cd -= 1
         rot_cd -= 1
         swap_cd -= 1
+        stamp_cd -=1
 
         # switch("game")
         
