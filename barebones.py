@@ -69,7 +69,7 @@ P1Boats = [
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
-    [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
+    [00, 00, 00, 00, 00, 00, 00, 10, 11, 00, 99, 99, 99, 99],
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
@@ -146,6 +146,7 @@ while running:
                 ydil = 8
                 keys = pygame.key.get_pressed()
 
+
                 if keys[pygame.K_1]:
                     selected_boat = 0
                     cur_boat_len = 2
@@ -165,25 +166,35 @@ while running:
                 if mov_cd <= 0:
                     if keys[pygame.K_w] and selected_cell.y > 0:
                         selected_cell.y -= 1
-                        mov_cd = 15
+                        mov_cd = 10
                     if keys[pygame.K_s] and selected_cell.y < 9:
                         selected_cell.y += 1
-                        mov_cd = 15
+                        mov_cd = 10
                     if keys[pygame.K_a] and selected_cell.x > 0:
                         selected_cell.x -= 1
-                        mov_cd = 15
+                        mov_cd = 10
                     if keys[pygame.K_d] and selected_cell.x < 9:
                         selected_cell.x += 1
-                        mov_cd = 15
+                        mov_cd = 10
                 
                 if rot_cd <= 0 and keys[pygame.K_r]:
                     cursor_dir = cursor_dir*(-1) + 1
-                    rot_cd = 50
+                    rot_cd = 15
+
+                if x == selected_cell.x and y == selected_cell.y:
+                    for i in range(0, cur_boat_len):
+                        if cursor_dir == 0 and P1Boats[y][x+i] != 00:
+                            bad_cell = True
+                        if cursor_dir == 1 and P1Boats[y+i][x] != 00:
+                            bad_cell = True
+                else:
+                    bad_cell = False
+                                
                 
                 if swap_cd <= 0 and keys[pygame.K_e]:
                     if cursor_dir == 0:
                         for i in range(1, cur_boat_len):
-                            
+                            pass
 
                 funcs: dict = {00: sea_tile,
                             10: dstryr2_tile,
@@ -206,7 +217,8 @@ while running:
                             }
                 tile_sprite = funcs.get(tile, "blank")
                 if (x == selected_cell.x) and (y == selected_cell.y):
-                    if ((cursor_dir == 0) and (selected_cell.x + cur_boat_len < 11)) or ((cursor_dir == 1) and (selected_cell.y + cur_boat_len < 11)):
+                    print(bad_cell)
+                    if (((cursor_dir == 0) and (selected_cell.x + cur_boat_len < 11)) or ((cursor_dir == 1) and (selected_cell.y + cur_boat_len < 11))) and bad_cell == False:
                         funcs: dict = {0: dstryrC_tile,
                                 1: subC_tile,
                                 2: cruiserC_tile,
@@ -238,8 +250,8 @@ while running:
                             if x == selected_cell.x and y == selected_cell.y + i:
                                 tile_sprite = boats.get(selected_boat).get(i)
                                 if tile_sprite != "blank":
-                                    if y > 9:
-                                        tile_sprite.set_alpha(128)
+                                    if y > 9 or bad_cell == True:
+                                        tile_sprite.set_alpha(155)
                                     else:
                                         tile_sprite.set_alpha(255)
                 if tile_sprite == "blank":
