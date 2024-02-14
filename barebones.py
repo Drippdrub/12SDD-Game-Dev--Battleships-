@@ -16,6 +16,9 @@ P2Grid = pygame.Surface((500, 500))
 
 clock = pygame.time.Clock()
 
+denyClick_sfx1 = pygame.mixer.Sound("sounds/SFX/DenyClick.wav")
+denyClick_sfx1.set_volume(0.75)
+
 confirmFleet_img = pygame.image.load("images/button_confirmfleet.png").convert_alpha()
 confirmFleet_hover = pygame.image.load("images/button_confirmfleet_hover.png").convert_alpha()
 
@@ -197,9 +200,9 @@ while running:
 
     if game_screen == "options":
         switch("boat placing")
-        selected_boat = 0
-        cur_boat_len = 2
-        selected_cell = pygame.Vector2(0,0)
+        selected_boat = 5
+        cur_boat_len = 0
+        selected_cell = pygame.Vector2(10,10)
         mov_cd = 0
 
     elif game_screen == "boat placing":
@@ -228,8 +231,8 @@ while running:
                         pass
             x = 0
             tiles: dict = {0: "blank",
-                           1: tile_H,
-                           2: tile_J,
+                           1: tile_J,
+                           2: tile_I,
                            3: tile_H,
                            4: tile_G,
                            5: tile_F,
@@ -555,7 +558,7 @@ while running:
             if StoredBoats == [0, 0, 0, 0, 0]:
                 switch("game")
             else:
-                pass
+                pygame.mixer.Sound.play(denyClick_sfx1)
         
     elif game_screen == "game":
         hud.fill((0, 0, 0, 0))
