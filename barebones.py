@@ -17,6 +17,7 @@ P2Grid = pygame.Surface((500, 500))
 clock = pygame.time.Clock()
 
 confirmFleet_img = pygame.image.load("images/button_confirmfleet.png").convert_alpha()
+confirmFleet_hover = pygame.image.load("images/button_confirmfleet_hover.png").convert_alpha()
 
 iso_test = pygame.image.load("images\iso_test.png").convert_alpha()
 ship_tile = pygame.image.load("images\isometric tiles\ship unit.png").convert_alpha()
@@ -94,7 +95,7 @@ carrier4_tile = pygame.image.load("images\isometric tiles\carrier4.png").convert
 carrierC_tile = pygame.image.load("images\isometric tiles\carrierC.png").convert_alpha()
 carrierX_tile = pygame.image.load("images\isometric tiles\carrierX.png").convert_alpha()
 
-game_screen = "boat placing"
+game_screen = "options"
 
 TestArr = [
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00],
@@ -227,16 +228,16 @@ while running:
                         pass
             x = 0
             tiles: dict = {0: "blank",
-                           1: tile_A,
-                           2: tile_B,
-                           3: tile_C,
-                           4: tile_D,
-                           5: tile_E,
-                           6: tile_F,
-                           7: tile_G,
-                           8: tile_H,
-                           9: tile_I,
-                           10: tile_J
+                           1: tile_H,
+                           2: tile_J,
+                           3: tile_H,
+                           4: tile_G,
+                           5: tile_F,
+                           6: tile_E,
+                           7: tile_D,
+                           8: tile_C,
+                           9: tile_B,
+                           10: tile_A
                             }
             tile_sprite = tiles.get(y, "blank")
             try:
@@ -549,13 +550,15 @@ while running:
             drawn_label = funcs.get(j, 0)
             drawn_label.draw(hud)
 
-        confirmFleet_button = button.Button(1050, 650, confirmFleet_img, 3)
+        confirmFleet_button = button.Button(1050, 650, confirmFleet_img, 3, confirmFleet_hover)
         if confirmFleet_button.draw(hud):
-            pass
-
-        # switch("game")
+            if StoredBoats == [0, 0, 0, 0, 0]:
+                switch("game")
+            else:
+                pass
         
     elif game_screen == "game":
+        hud.fill((0, 0, 0, 0))
         for y, row in enumerate(PlacingGrid):
             for x, tile in enumerate(row):
                 xdil = 16
