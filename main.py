@@ -1,6 +1,6 @@
 import pygame
 # import button.py custom module
-import button
+import customwidgets as widgets
 
 # pygame setup
 pygame.init()
@@ -35,11 +35,11 @@ mode1p_img = pygame.image.load("images/button_Mode1P.png").convert_alpha()
 mode2p_img = pygame.image.load("images/button_Mode2P.png").convert_alpha()
 
 # create image/button instances
-title_button = button.Button(SCREEN_WIDTH/2, 100, title_img, 7)
-play_button = button.Button(SCREEN_WIDTH/2, 300, play_img, 3)
-options_button = button.Button(SCREEN_WIDTH/2, 400, options_img, 3)
-mode1p_button = button.Button(SCREEN_WIDTH/2, 360, mode1p_img, 3)
-mode2p_button = button.Button(SCREEN_WIDTH/2, 360, mode2p_img, 3)
+title_button = widgets.Button(SCREEN_WIDTH/2, 100, title_img, 7)
+play_button = widgets.Button(SCREEN_WIDTH/2, 300, play_img, 3)
+options_button = widgets.Button(SCREEN_WIDTH/2, 400, options_img, 3)
+mode1p_button = widgets.Button(SCREEN_WIDTH/2, 360, mode1p_img, 3)
+mode2p_button = widgets.Button(SCREEN_WIDTH/2, 360, mode2p_img, 3)
 
 # load sounds
 startup_sfx1 = pygame.mixer.Sound("sounds/SFX/Explosion1.wav")
@@ -73,10 +73,10 @@ while running:
             switch(1)
 
         if 30 < startup_ticks < 50:
-            title_button = button.Button(SCREEN_WIDTH/2, 100, title_img, (7+((50-startup_ticks)*1)))
+            title_button = widgets.Button(SCREEN_WIDTH/2, 100, title_img, (7+((50-startup_ticks)*1)))
             title_button.draw(screen)
         elif startup_ticks == 50:
-            title_button = button.Button(SCREEN_WIDTH/2, 100, title_img, 7)
+            title_button = widgets.Button(SCREEN_WIDTH/2, 100, title_img, 7)
             title_button.draw(screen)
             pygame.mixer.Sound.play(startup_sfx1)
         elif startup_ticks > 50:
