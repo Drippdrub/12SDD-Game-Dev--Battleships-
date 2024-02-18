@@ -44,7 +44,7 @@ mode2p_button = widgets.Button(SCREEN_WIDTH/2, 360, mode2p_img, 3)
 # load sounds
 startup_sfx1 = pygame.mixer.Sound("sounds/SFX/Explosion1.wav")
 startup_sfx1.set_volume(0.5)
-startup_sfx2 = pygame.mixer.Sound("sounds\SFX\Blip1")
+startup_sfx2 = pygame.mixer.Sound("sounds\SFX\Blip1.wav")
 startup_sfx2.set_volume(0.5)
 
 def draw_text(text, font, text_col, x, y):
