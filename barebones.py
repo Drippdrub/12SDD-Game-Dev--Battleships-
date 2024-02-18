@@ -180,6 +180,11 @@ store_cd = 0
 P1Rot = []
 P2Rot = []
 
+turn = 0
+anim_ticks = 0
+left_size = 0
+right_size = 0
+
 destroyer: dict = {0: destroyer2_tile,
                     1: destroyer1_tile
                     }
@@ -301,7 +306,11 @@ while running:
             BoatRotation = [0, 0, 0, 0, 0]
             PlacingGrid = copy.deepcopy(BlankGrid)
         else:
-            pass
+            if turn%2 == 1:
+                anim_ticks = 0
+                switch("P1Game")
+            else:
+                print(turn%2)
     
     elif game_screen == "P1Prompt":
         if selectedPlayerMode == False:
@@ -356,8 +365,9 @@ while running:
     elif game_screen == "AIReady":
         draw_text("Start Game", font1, (0, 0, 0), (1280-font1.size("Start Game")[0])/2, 100)
         if gameBegin.draw(hud):
-            inGame == True
-            switch("P1Game")
+            inGame = True
+            turn = 1
+            switch("page router")
 
     elif game_screen == "boat placing":
         xdil = 16
@@ -740,7 +750,11 @@ while running:
                 pygame.mixer.Sound.play(denyClick_sfx1)
     
     elif game_screen == "GameReady":
-        pass
+        draw_text("Start Game", font1, (0, 0, 0), (1280-font1.size("Start Game")[0])/2, 100)
+        if gameBegin.draw(hud):
+            inGame = True
+            turn = 1
+            switch("page router")
 
     elif game_screen == "P1Game":
         funcs: dict = {00: d_sea_tile,
@@ -763,38 +777,7 @@ while running:
                             54: carrier1_tile,
                             99: "blank"
                             }
-        for y, row in enumerate(P1Boats):
-            for x, tile in enumerate(row):
-                xdil = 16
-                ydil = 8
-                boat_type = 9  
-                rotate_cell = None              
-                if (tile == 10) or (tile == 11):
-                    boat_type = 0
-                if (tile == 20) or (tile == 21) or (tile == 22):
-                    boat_type = 1
-                if (tile == 30) or (tile == 31) or (tile == 32):
-                    boat_type = 2
-                if (tile == 40) or (tile == 41) or (tile == 42) or (tile == 43):
-                    boat_type = 3
-                if (tile == 50) or (tile == 51) or (tile == 52) or (tile == 53) or (tile == 54):
-                    boat_type = 4
-                
-                if boat_type != 9:
-                    if P1Rot[boat_type] == 0:
-                        rotate_cell = False
-                    elif P1Rot[boat_type] == 1:
-                        rotate_cell = True
-                
-                tile_sprite = funcs.get(tile, d_sea_tile)
-
-                if tile_sprite == "blank":
-                    pass
-                elif rotate_cell == False:
-                    leftRender.blit(tile_sprite, (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
-                else:
-                    leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
-
+        # left render
         for y, row in enumerate(P2Boats):
             for x, tile in enumerate(row):
                 xdil = 16
@@ -823,10 +806,58 @@ while running:
                 if tile_sprite == "blank":
                     pass
                 elif rotate_cell == False:
+                    leftRender.blit(tile_sprite, (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
+                else:
+                    leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
+
+        # right render
+        for y, row in enumerate(P1Boats):
+            for x, tile in enumerate(row):
+                xdil = 16
+                ydil = 8
+                boat_type = 9  
+                rotate_cell = None              
+                if (tile == 10) or (tile == 11):
+                    boat_type = 0
+                if (tile == 20) or (tile == 21) or (tile == 22):
+                    boat_type = 1
+                if (tile == 30) or (tile == 31) or (tile == 32):
+                    boat_type = 2
+                if (tile == 40) or (tile == 41) or (tile == 42) or (tile == 43):
+                    boat_type = 3
+                if (tile == 50) or (tile == 51) or (tile == 52) or (tile == 53) or (tile == 54):
+                    boat_type = 4
+                
+                if boat_type != 9:
+                    if P1Rot[boat_type] == 0:
+                        rotate_cell = False
+                    elif P1Rot[boat_type] == 1:
+                        rotate_cell = True
+                
+                tile_sprite = funcs.get(tile, d_sea_tile)
+
+                if tile_sprite == "blank":
+                    pass
+                elif rotate_cell == False:
                     rightRender.blit(tile_sprite, (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
                 else:
                     rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
-    
+        
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_e]:
+            anim_ticks = 0
+
+        t = 30
+        scale = 5
+        diff = 0.7
+        if anim_ticks <= t:
+            left_size = screen.get_width()/2 + scale*((1-diff)*t+1*anim_ticks)
+            right_size = screen.get_width()/2 + scale*((1+diff)*t-1*anim_ticks)
+            left
+        
+        anim_ticks += 1
+
     # animate water
     if sea_anim_cd <= 0:
         cur_sea += 1
@@ -843,8 +874,8 @@ while running:
     
     dt = clock.tick(60) / 1000
     screen.blit(pygame.transform.scale(placementSurface, (screen.get_width()/1.4, screen.get_width()/1.4)), (380, 50))
-    screen.blit(pygame.transform.scale(leftRender, (screen.get_width()/2, screen.get_width()/2)), (75, 50))
-    screen.blit(pygame.transform.scale(rightRender, (screen.get_width()/2, screen.get_width()/2)), (1180+25-640, 300))
+    screen.blit(pygame.transform.scale(leftRender, (left_size, left_size)), (75, 50))
+    screen.blit(pygame.transform.scale(rightRender, (right_size, right_size)), (1180+25-640, 300))
     screen.blit(hud, (0, 0))
     
     pygame.display.update()
