@@ -871,13 +871,13 @@ while running:
             right_size = screen.get_width()/2 + scale*(1 + (0.5*t)*diff)
             left_pos = pygame.Vector2(50, 50)
             right_pos = pygame.Vector2(1230-right_size, 670-(right_size*0.55))
+            anim_ticks += 1
         elif delay < anim_ticks <= delay + t:
             left_size = screen.get_width()/2 + scale*(1 - (0.5*t - (anim_ticks - delay))*diff)
             right_size = screen.get_width()/2 + scale*(1 + (0.5*t - (anim_ticks - delay))*diff)
             left_pos = pygame.Vector2(50, 50)
             right_pos = pygame.Vector2(1230-right_size, 670-(right_size*0.55))
-        
-        anim_ticks += 1
+            anim_ticks += 1
 
     # animate water
     if sea_anim_cd <= 0:
