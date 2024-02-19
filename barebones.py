@@ -15,8 +15,8 @@ pygame.init()
 pygame.display.set_caption("barebones")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),0,32)
 hud = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32).convert_alpha()
-leftRender = pygame.Surface((325, 325)).convert_alpha()
-rightRender = pygame.Surface((325, 325)).convert_alpha()
+leftRender = pygame.Surface((320, 320)).convert_alpha()
+rightRender = pygame.Surface((320, 320)).convert_alpha()
 placementSurface = pygame.Surface((400, 400)).convert_alpha()
 
 clock = pygame.time.Clock()
@@ -54,8 +54,10 @@ confirmFleet_hover = pygame.image.load(resource_path("images/button_confirmfleet
 randomiseFleet_img = pygame.image.load(resource_path("images/button_randomisefleet.png")).convert_alpha()
 randomiseFleet_hover = pygame.image.load(resource_path("images/button_randomisefleet_hover.png")).convert_alpha()
 
-iso_test = pygame.image.load(resource_path("images\iso_test.png")).convert_alpha()
-ship_tile = pygame.image.load(resource_path("images\isometric tiles\ship unit.png")).convert_alpha()
+nuke_img = pygame.image.load(resource_path("images/nuke.png")).convert_alpha()
+
+# iso_test = pygame.image.load(resource_path("images\iso_test.png")).convert_alpha()
+# ship_tile = pygame.image.load(resource_path("images\isometric tiles\ship unit.png")).convert_alpha()
 
 lbl_destroyer_stored = pygame.image.load(resource_path("images\Placement Labels\DestroyerStored.png")).convert_alpha()
 lbl_destroyer_placed = pygame.image.load(resource_path("images\Placement Labels\DestroyerPlaced.png")).convert_alpha()
@@ -72,6 +74,7 @@ lbl_carrier_placed = pygame.image.load(resource_path("images\Placement Labels\Ca
 sea_anim_cd = 0
 cur_sea = 0
 d_sea_tile = pygame.image.load(resource_path("images\isometric tiles\sea unit.png")).convert_alpha()
+fake_sea_tile = pygame.image.load(resource_path("images\isometric tiles\sea unit.png")).convert_alpha()
 sea_tile1 = pygame.image.load(resource_path("images\isometric tiles\sea unit.png")).convert_alpha()
 sea_tile2 = pygame.image.load(resource_path("images\isometric tiles\sea unit2.png")).convert_alpha()
 sea_tile3 = pygame.image.load(resource_path("images\isometric tiles\sea unit3.png")).convert_alpha()
@@ -184,6 +187,8 @@ turn = 0
 anim_ticks = 0
 left_size = 0
 right_size = 0
+left_pos = pygame.Vector2(0, 0)
+right_pos = pygame.Vector2(0, 0)
 
 destroyer: dict = {0: destroyer2_tile,
                     1: destroyer1_tile
@@ -306,11 +311,17 @@ while running:
             BoatRotation = [0, 0, 0, 0, 0]
             PlacingGrid = copy.deepcopy(BlankGrid)
         else:
-            if turn%2 == 1:
+            if turn == 1:
                 anim_ticks = 0
                 switch("P1Game")
             else:
-                print(turn%2)
+                if selectedPlayerMode == False:
+                    pass
+                else:
+                    if turn % 2 == 1:
+                        pass
+                    else:
+                        pass
     
     elif game_screen == "P1Prompt":
         if selectedPlayerMode == False:
@@ -766,8 +777,8 @@ while running:
                             30: cruiser3_tile,
                             31: cruiser2_tile,
                             32: cruiser1_tile,
-                            40: cruiser3_tile,
-                            41: cruiser2_tile,
+                            40: battleship4_tile,
+                            41: battleship3_tile,
                             42: battleship2_tile,
                             43: battleship1_tile,
                             50: carrier4_tile,
@@ -800,15 +811,18 @@ while running:
                         rotate_cell = False
                     elif P2Rot[boat_type] == 1:
                         rotate_cell = True
-                
-                tile_sprite = funcs.get(tile, d_sea_tile)
+
+                if tile in [10, 11, 20, 21, 22, 30, 31, 32, 40, 41, 42, 43, 50, 51, 52, 53, 54] and not keys[pygame.K_f]:
+                    tile_sprite = d_sea_tile
+                else:
+                    tile_sprite = funcs.get(tile, d_sea_tile)
 
                 if tile_sprite == "blank":
                     pass
                 elif rotate_cell == False:
-                    leftRender.blit(tile_sprite, (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
+                    leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
                 else:
-                    leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
+                    leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
 
         # right render
         for y, row in enumerate(P1Boats):
@@ -839,9 +853,9 @@ while running:
                 if tile_sprite == "blank":
                     pass
                 elif rotate_cell == False:
-                    rightRender.blit(tile_sprite, (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
+                    rightRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
                 else:
-                    rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (146+x*xdil-y*xdil, -25+x*ydil+y*ydil))
+                    rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
         
         keys = pygame.key.get_pressed()
 
@@ -849,12 +863,19 @@ while running:
             anim_ticks = 0
 
         t = 30
-        scale = 5
-        diff = 0.7
-        if anim_ticks <= t:
-            left_size = screen.get_width()/2 + scale*((1-diff)*t+1*anim_ticks)
-            right_size = screen.get_width()/2 + scale*((1+diff)*t-1*anim_ticks)
-            left
+        scale = 10
+        diff = 1.5
+        delay = 90
+        if anim_ticks <= delay:
+            left_size = screen.get_width()/2 + scale*(1 - (0.5*t)*diff)
+            right_size = screen.get_width()/2 + scale*(1 + (0.5*t)*diff)
+            left_pos = pygame.Vector2(50, 50)
+            right_pos = pygame.Vector2(1230-right_size, 670-(right_size*0.55))
+        elif delay < anim_ticks <= delay + t:
+            left_size = screen.get_width()/2 + scale*(1 - (0.5*t - (anim_ticks - delay))*diff)
+            right_size = screen.get_width()/2 + scale*(1 + (0.5*t - (anim_ticks - delay))*diff)
+            left_pos = pygame.Vector2(50, 50)
+            right_pos = pygame.Vector2(1230-right_size, 670-(right_size*0.55))
         
         anim_ticks += 1
 
@@ -874,8 +895,8 @@ while running:
     
     dt = clock.tick(60) / 1000
     screen.blit(pygame.transform.scale(placementSurface, (screen.get_width()/1.4, screen.get_width()/1.4)), (380, 50))
-    screen.blit(pygame.transform.scale(leftRender, (left_size, left_size)), (75, 50))
-    screen.blit(pygame.transform.scale(rightRender, (right_size, right_size)), (1180+25-640, 300))
+    screen.blit(pygame.transform.scale(leftRender, (left_size, left_size)), left_pos)
+    screen.blit(pygame.transform.scale(rightRender, (right_size, right_size)), right_pos)
     screen.blit(hud, (0, 0))
     
     pygame.display.update()
