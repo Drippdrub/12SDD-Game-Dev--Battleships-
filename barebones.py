@@ -40,8 +40,29 @@ font1 = pygame.font.Font("fonts\CompassPro.ttf", 72)
 
 place_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\place.wav"))
 place_sfx1.set_volume(0.75)
-denyClick_sfx1 = pygame.mixer.Sound(resource_path("sounds/SFX/DenyClick.wav"))
+denyClick_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\DenyClick.wav"))
 denyClick_sfx1.set_volume(0.75)
+
+explosion_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\Explosion1.wav"))
+explosion_sfx1.set_volume(0.75)
+explosion_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Explosion2.wav"))
+explosion_sfx2.set_volume(0.75)
+explosion_sfx3 = pygame.mixer.Sound(resource_path("sounds\SFX\Explosion3.wav"))
+explosion_sfx3.set_volume(0.75)
+explosion_sfx4 = pygame.mixer.Sound(resource_path("sounds\SFX\Explosion4.wav"))
+explosion_sfx4.set_volume(0.75)
+
+splash_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash.wav"))
+splash_sfx1.set_volume(0.75)
+splash_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash2.wav"))
+splash_sfx2.set_volume(0.75)
+splash_sfx3 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash3.wav"))
+splash_sfx3.set_volume(0.75)
+splash_sfx4 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash4.wav"))
+splash_sfx4.set_volume(0.75)
+splash_sfx5 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash5.wav"))
+splash_sfx5.set_volume(0.75)
+
 
 playButton_img = pygame.image.load(resource_path("images/button_play.png")).convert_alpha()
 playButton_hover = pygame.image.load(resource_path("images/button_play_hover.png")).convert_alpha()
@@ -50,12 +71,40 @@ okayButton_hover = pygame.image.load(resource_path("images/button_okay_hover.png
 okayButton_disabled = pygame.image.load(resource_path("images/button_okay_disabled.png")).convert_alpha()
 select1P_img = pygame.image.load(resource_path("images/toggle_select1P.png")).convert_alpha()
 select2P_img = pygame.image.load(resource_path("images/toggle_select2P.png")).convert_alpha()
+selectDiffEasy_img = pygame.image.load(resource_path("images/toggle_diffEasy.png")).convert_alpha()
+selectDiffHard_img = pygame.image.load(resource_path("images/toggle_diffHard.png")).convert_alpha()
 confirmFleet_img = pygame.image.load(resource_path("images/button_confirmfleet.png")).convert_alpha()
 confirmFleet_hover = pygame.image.load(resource_path("images/button_confirmfleet_hover.png")).convert_alpha()
 randomiseFleet_img = pygame.image.load(resource_path("images/button_randomisefleet.png")).convert_alpha()
 randomiseFleet_hover = pygame.image.load(resource_path("images/button_randomisefleet_hover.png")).convert_alpha()
 
 nuke_img = pygame.image.load(resource_path("images/nuke.png")).convert_alpha()
+
+explosion_frame_1 = pygame.image.load(resource_path("images\Anims\Explosion/1.png")).convert_alpha()
+explosion_frame_2 = pygame.image.load(resource_path("images\Anims\Explosion/2.png")).convert_alpha()
+explosion_frame_3 = pygame.image.load(resource_path("images\Anims\Explosion/3.png")).convert_alpha()
+explosion_frame_4 = pygame.image.load(resource_path("images\Anims\Explosion/4.png")).convert_alpha()
+explosion_frame_5 = pygame.image.load(resource_path("images\Anims\Explosion/5.png")).convert_alpha()
+explosion_frame_6 = pygame.image.load(resource_path("images\Anims\Explosion/6.png")).convert_alpha()
+explosion_frame_7 = pygame.image.load(resource_path("images\Anims\Explosion/7.png")).convert_alpha()
+explosion_frame_8 = pygame.image.load(resource_path("images\Anims\Explosion/8.png")).convert_alpha()
+explosion_frame_9 = pygame.image.load(resource_path("images\Anims\Explosion/9.png")).convert_alpha()
+explosion_frame_10 = pygame.image.load(resource_path("images\Anims\Explosion/10.png")).convert_alpha()
+explosion_frame_11 = pygame.image.load(resource_path("images\Anims\Explosion/11.png")).convert_alpha()
+explosion_frame_12 = pygame.image.load(resource_path("images\Anims\Explosion/12.png")).convert_alpha()
+
+splash_frame_1 = pygame.image.load(resource_path("images\Anims\Splash/1.png")).convert_alpha()
+splash_frame_2 = pygame.image.load(resource_path("images\Anims\Splash/2.png")).convert_alpha()
+splash_frame_3 = pygame.image.load(resource_path("images\Anims\Splash/3.png")).convert_alpha()
+splash_frame_4 = pygame.image.load(resource_path("images\Anims\Splash/4.png")).convert_alpha()
+splash_frame_5 = pygame.image.load(resource_path("images\Anims\Splash/5.png")).convert_alpha()
+splash_frame_6 = pygame.image.load(resource_path("images\Anims\Splash/6.png")).convert_alpha()
+splash_frame_7 = pygame.image.load(resource_path("images\Anims\Splash/7.png")).convert_alpha()
+splash_frame_8 = pygame.image.load(resource_path("images\Anims\Splash/8.png")).convert_alpha()
+splash_frame_9 = pygame.image.load(resource_path("images\Anims\Splash/9.png")).convert_alpha()
+splash_frame_10 = pygame.image.load(resource_path("images\Anims\Splash/10.png")).convert_alpha()
+splash_frame_11 = pygame.image.load(resource_path("images\Anims\Splash/11.png")).convert_alpha()
+splash_frame_12 = pygame.image.load(resource_path("images\Anims\Splash/12.png")).convert_alpha()
 
 # iso_test = pygame.image.load(resource_path("images\iso_test.png")).convert_alpha()
 # ship_tile = pygame.image.load(resource_path("images\isometric tiles\ship unit.png")).convert_alpha()
@@ -113,10 +162,24 @@ tile_10 = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Ac
 cursorC = pygame.image.load(resource_path("images\isometric tiles\cursorC.png")).convert_alpha()
 cursorX = pygame.image.load(resource_path("images\isometric tiles\cursorX.png")).convert_alpha()
 
+
 destroyer1_tile = pygame.image.load(resource_path("images\isometric tiles\destroyer1.png")).convert_alpha()
 destroyer2_tile = pygame.image.load(resource_path("images\isometric tiles\destroyer2.png")).convert_alpha()
 destroyerX_tile = pygame.image.load(resource_path("images\isometric tiles\destroyerX.png")).convert_alpha()
 destroyerC_tile = pygame.image.load(resource_path("images\isometric tiles\destroyerC.png")).convert_alpha()
+
+destroyer1_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer1\Destroyer1_Sink1.png")).convert_alpha()
+destroyer1_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer1\Destroyer1_Sink2.png")).convert_alpha()
+destroyer1_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer1\Destroyer1_Sink3.png")).convert_alpha()
+destroyer1_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer1\Destroyer1_Sink4.png")).convert_alpha()
+destroyer1_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer1\Destroyer1_Sink5.png")).convert_alpha()
+
+destroyer2_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer2/Destroyer2_Sink1.png")).convert_alpha()
+destroyer2_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer2/Destroyer2_Sink2.png")).convert_alpha()
+destroyer2_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer2/Destroyer2_Sink3.png")).convert_alpha()
+destroyer2_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer2/Destroyer2_Sink4.png")).convert_alpha()
+destroyer2_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Destroyer\Destroyer2/Destroyer2_Sink5.png")).convert_alpha()
+
 
 sub1_tile = pygame.image.load(resource_path("images\isometric tiles\sub1.png")).convert_alpha()
 sub2_tile = pygame.image.load(resource_path("images\isometric tiles\sub2.png")).convert_alpha()
@@ -124,11 +187,31 @@ sub3_tile = pygame.image.load(resource_path("images\isometric tiles\sub3.png")).
 subX_tile = pygame.image.load(resource_path("images\isometric tiles\subX.png")).convert_alpha()
 subC_tile = pygame.image.load(resource_path("images\isometric tiles\subC.png")).convert_alpha()
 
+submarine1_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine1\Submarine1_Sink1.png")).convert_alpha()
+submarine1_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine1\Submarine1_Sink2.png")).convert_alpha()
+submarine1_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine1\Submarine1_Sink3.png")).convert_alpha()
+submarine1_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine1\Submarine1_Sink4.png")).convert_alpha()
+submarine1_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine1\Submarine1_Sink5.png")).convert_alpha()
+
+submarine2_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine2\Submarine2_Sink1.png")).convert_alpha()
+submarine2_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine2\Submarine2_Sink2.png")).convert_alpha()
+submarine2_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine2\Submarine2_Sink3.png")).convert_alpha()
+submarine2_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine2\Submarine2_Sink4.png")).convert_alpha()
+submarine2_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine2\Submarine2_Sink5.png")).convert_alpha()
+
+submarine3_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine3\Submarine3_Sink1.png")).convert_alpha()
+submarine3_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine3\Submarine3_Sink2.png")).convert_alpha()
+submarine3_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine3\Submarine3_Sink3.png")).convert_alpha()
+submarine3_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine3\Submarine3_Sink4.png")).convert_alpha()
+submarine3_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Submarine\Submarine3\Submarine3_Sink5.png")).convert_alpha()
+
+
 cruiser1_tile = pygame.image.load(resource_path("images\isometric tiles\cruiser1.png")).convert_alpha()
 cruiser2_tile = pygame.image.load(resource_path("images\isometric tiles\cruiser2.png")).convert_alpha()
 cruiser3_tile = pygame.image.load(resource_path("images\isometric tiles\cruiser3.png")).convert_alpha()
 cruiserX_tile = pygame.image.load(resource_path("images\isometric tiles\cruiserX.png")).convert_alpha()
 cruiserC_tile = pygame.image.load(resource_path("images\isometric tiles\cruiserC.png")).convert_alpha()
+
 
 battleship1_tile = pygame.image.load(resource_path("images\isometric tiles/bttlship1.png")).convert_alpha()
 battleship2_tile = pygame.image.load(resource_path("images\isometric tiles/bttlship2.png")).convert_alpha()
@@ -137,12 +220,14 @@ battleship4_tile = pygame.image.load(resource_path("images\isometric tiles/bttls
 battleshipC_tile = pygame.image.load(resource_path("images\isometric tiles/bttlshipC.png")).convert_alpha()
 battleshipX_tile = pygame.image.load(resource_path("images\isometric tiles/bttlshipX.png")).convert_alpha()
 
+
 carrier1_tile = pygame.image.load(resource_path("images\isometric tiles\carrier1.png")).convert_alpha()
 carrier2_tile = pygame.image.load(resource_path("images\isometric tiles\carrier2.png")).convert_alpha()
 carrier3_tile = pygame.image.load(resource_path("images\isometric tiles\carrier3.png")).convert_alpha()
 carrier4_tile = pygame.image.load(resource_path("images\isometric tiles\carrier4.png")).convert_alpha()
 carrierC_tile = pygame.image.load(resource_path("images\isometric tiles\carrierC.png")).convert_alpha()
 carrierX_tile = pygame.image.load(resource_path("images\isometric tiles\carrierX.png")).convert_alpha()
+
 
 game_screen = "options"
 
@@ -240,7 +325,8 @@ boat_len: dict = {0: 2,
 
 # options widgets
 selectPlayer = widgets.Toggle(640, 300, select1P_img, select2P_img, 1.5)
-optionsProceed = widgets.Button(640, 420, playButton_img, 3, playButton_hover)
+selectDiff = widgets.Toggle(640, 430, selectDiffEasy_img, selectDiffHard_img, 0.9)
+optionsProceed = widgets.Button(640, 570, playButton_img, 3, playButton_hover)
 
 # prompt widgets
 promptDisabled = widgets.Image(640, 420, okayButton_disabled, 3)
@@ -281,6 +367,7 @@ while running:
 
     if game_screen == "options":
         selectedPlayerMode = selectPlayer.draw(hud, output=0)
+        selectDiff.draw(hud, output=0)
         if optionsProceed.draw(hud):
             switch("page router")
     
@@ -326,19 +413,28 @@ while running:
             BoatRotation = [0, 0, 0, 0, 0]
             PlacingGrid = copy.deepcopy(BlankGrid)
         else: #if currently in game
+            turn += 1 #on init turn is 0, first turn changes to 1
             selected_cell = pygame.Vector2(0,0)
             mov_cd = 0
             if turn == 1: #on first turn
                 anim_ticks = 0
                 nuke_anim = False
+                destroyer_sink_anim = False
+                submarine_sink_anim = False
+                cruiser_sink_anim = False
+                battleship_sink_anim = False
+                carrier_sink_anim = False
+                sink_anim_ticks = 0
+                P1Boats_sunk = [0, 0, 0, 0, 0]
+                P2Boats_sunk = [0, 0, 0, 0, 0]
                 nuke_ticks = 0
                 x = 0
                 y = 0
                 target_cell = pygame.Vector2(0,0)
                 switch("P1Game")
             else:
-                if selectedPlayerMode == False:
-                    pass
+                if selectedPlayerMode == False: # one player mode
+                    switch("AI Turn")
                 else:
                     if turn % 2 == 1:
                         pass
@@ -399,7 +495,6 @@ while running:
         draw_text("Start Game", font1, (0, 0, 0), (1280-font1.size("Start Game")[0])/2, 100)
         if gameBegin.draw(hud):
             inGame = True
-            turn = 1
             switch("page router")
 
     elif game_screen == "boat placing":
@@ -721,8 +816,8 @@ while running:
         mov_cd -= 1
         rot_cd -= 1
         swap_cd -= 1
-        stamp_cd -=1
-        store_cd -=1
+        stamp_cd -= 1
+        store_cd -= 1
 
         for i in range(len(StoredBoats)):
             j = i * 2 + StoredBoats[i]
@@ -788,8 +883,10 @@ while running:
         draw_text("Start Game", font1, (0, 0, 0), (1280-font1.size("Start Game")[0])/2, 100)
         if gameBegin.draw(hud):
             inGame = True
-            turn = 1
             switch("page router")
+
+    elif game_screen == "AI Turn":
+        pass
 
     elif game_screen == "P1Game":
         funcs: dict = {00: d_sea_tile,
@@ -836,15 +933,15 @@ while running:
                 ydil = 8
                 boat_type = 9  
                 rotate_cell = None              
-                if (tile == 10) or (tile == 11):
+                if tile in range(10, 20):
                     boat_type = 0
-                if (tile == 20) or (tile == 21) or (tile == 22):
+                if tile in range(20, 30):
                     boat_type = 1
-                if (tile == 30) or (tile == 31) or (tile == 32):
+                if tile in range(30, 40):
                     boat_type = 2
-                if (tile == 40) or (tile == 41) or (tile == 42) or (tile == 43):
+                if tile in range(40, 50):
                     boat_type = 3
-                if (tile == 50) or (tile == 51) or (tile == 52) or (tile == 53) or (tile == 54):
+                if tile in range(50, 60):
                     boat_type = 4
                 
                 if boat_type != 9:
@@ -859,49 +956,136 @@ while running:
                     tile_sprite = d_sea_nohit_tile
                 elif tile in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                     tile_sprite = d_sea_hit_tile
+                    hit_tiles = {
+                        15: destroyer2_sink5,
+                        16: destroyer1_sink5,
+                        25: submarine3_sink5,
+                        26: submarine2_sink5,
+                        27: submarine1_sink5
+                    }
+                    if (P2Boats_sunk[0] == 1 and tile in [15, 16]) or (P2Boats_sunk[1] == 1 and tile in [25, 26, 27]):
+                        tile_sprite = hit_tiles.get(tile, d_sea_hit_tile)
                 else:
                     tile_sprite = funcs.get(tile, "blank")
+
+                if destroyer_sink_anim == True:
+                    if sink_anim_ticks in range(0, 15):
+                        if tile == 15:
+                            tile_sprite = destroyer2_sink1
+                        elif tile == 16:
+                            tile_sprite = destroyer1_sink1
+                    elif sink_anim_ticks in range(15, 30):
+                        if tile == 15:
+                            tile_sprite = destroyer2_sink2
+                        elif tile == 16:
+                            tile_sprite = destroyer1_sink2
+                    elif sink_anim_ticks in range(30, 45):
+                        if tile == 15:
+                            tile_sprite = destroyer2_sink3
+                        elif tile == 16:
+                            tile_sprite = destroyer1_sink3
+                    elif sink_anim_ticks in range(45, 60):
+                        if tile == 15:
+                            tile_sprite = destroyer2_sink4
+                        elif tile == 16:
+                            tile_sprite = destroyer1_sink4
+                    elif sink_anim_ticks in range(60, 75):
+                        if tile == 15:
+                            tile_sprite = destroyer2_sink5
+                        elif tile == 16:
+                            tile_sprite = destroyer1_sink5
+
+                if submarine_sink_anim == True:
+                    if sink_anim_ticks in range(0, 15):
+                        if tile == 25:
+                            tile_sprite = submarine3_sink1
+                        elif tile == 26:
+                            tile_sprite = submarine2_sink1
+                        elif tile == 27:
+                            tile_sprite = submarine1_sink1
+                    elif sink_anim_ticks in range(15, 30):
+                        if tile == 25:
+                            tile_sprite = submarine3_sink2
+                        elif tile == 26:
+                            tile_sprite = submarine2_sink2
+                        elif tile == 27:
+                            tile_sprite = submarine1_sink2
+                    elif sink_anim_ticks in range(30, 45):
+                        if tile == 25:
+                            tile_sprite = submarine3_sink3
+                        elif tile == 26:
+                            tile_sprite = submarine2_sink3
+                        elif tile == 27:
+                            tile_sprite = submarine1_sink3
+                    elif sink_anim_ticks in range(45, 60):
+                        if tile == 25:
+                            tile_sprite = submarine3_sink4
+                        elif tile == 26:
+                            tile_sprite = submarine2_sink4
+                        elif tile == 27:
+                            tile_sprite = submarine1_sink4
+                    elif sink_anim_ticks in range(60, 75):
+                        if tile == 25:
+                            tile_sprite = submarine3_sink5
+                        elif tile == 26:
+                            tile_sprite = submarine2_sink5
+                        elif tile == 27:
+                            tile_sprite = submarine1_sink5
+                        
 
                 if tile_sprite == "blank":
                     pass
                 elif nuke_anim == True:
+                    not_cell = True
                     if (x in [target_cell.x-1, target_cell.x, target_cell.x+1]) and (y in [target_cell.y-1, target_cell.y, target_cell.y+1]):
                         if pygame.Vector2(x, y) != target_cell:
                             if nuke_ticks > 30 and nuke_ticks <= 35:
-                                leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil-(nuke_ticks-30)*0.05))
+                                y_level = 10+x*ydil+y*ydil-(nuke_ticks-30)*0.05
                             elif nuke_ticks > 35 and nuke_ticks <= 40:
-                                leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil-(40-nuke_ticks)*0.1))
+                                y_level = 10+x*ydil+y*ydil-(40-nuke_ticks)*0.1
                             else:
-                                leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                                not_cell = False
                         elif pygame.Vector2(x, y) == target_cell:
                             if nuke_ticks > 30 and nuke_ticks <= 40:
-                                leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil+(nuke_ticks-30)*0.3))
+                                y_level = 10+x*ydil+y*ydil+(nuke_ticks-30)*0.3
                             else:
-                                leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                                not_cell = False
                         else:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                            not_cell = False
                     elif (x in [target_cell.x-2, target_cell.x+2] and y in [target_cell.y-2, target_cell.y-1, target_cell.y, target_cell.y+1, target_cell.y+2]) or \
                     (y in [target_cell.y-2, target_cell.y+2] and x in [target_cell.x-1, target_cell.x, target_cell.x+1]):
                         if nuke_ticks > 35 and nuke_ticks <= 40:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil-(nuke_ticks-35)*0.05))
+                            y_level = 10+x*ydil+y*ydil-(nuke_ticks-35)*0.05
                         elif nuke_ticks > 40 and nuke_ticks <= 45:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil-(45-nuke_ticks)*0.1))
+                            y_level = 10+x*ydil+y*ydil-(45-nuke_ticks)*0.1
                         else:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                            not_cell = False
                     elif (x in [target_cell.x-3, target_cell.x+3] and y in [target_cell.y-3, target_cell.y-2, target_cell.y-1, target_cell.y, target_cell.y+1, target_cell.y+2, target_cell.y+3]) or \
                     (y in [target_cell.y-3, target_cell.y+3] and x in [target_cell.x-2, target_cell.x-1, target_cell.x, target_cell.x+1, target_cell.x+2]):
                         if nuke_ticks > 40 and nuke_ticks <= 45:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil-(nuke_ticks-40)*0.05))
+                            y_level = 10+x*ydil+y*ydil-(nuke_ticks-40)*0.05
                         elif nuke_ticks > 45 and nuke_ticks <= 50:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil-(50-nuke_ticks)*0.1))
+                            y_level = 10+x*ydil+y*ydil-(50-nuke_ticks)*0.1
                         else:
-                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                            not_cell = False
                     else:
-                        leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                        not_cell = False
+
+                    if not_cell == False:
+                        if rotate_cell == False:
+                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
+                        else:
+                            leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
+                    else:
+                        if rotate_cell == False:
+                            leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, y_level))
+                        else:
+                            leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, y_level))
+                    
                 elif rotate_cell == False:
-                    leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                    leftRender.blit(tile_sprite, (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
                 else:
-                    leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                    leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
 
         # right render
         for y, row in enumerate(P1Boats):
@@ -910,15 +1094,15 @@ while running:
                 ydil = 8
                 boat_type = 9  
                 rotate_cell = None              
-                if (tile == 10) or (tile == 11):
+                if tile in range(10, 20):
                     boat_type = 0
-                if (tile == 20) or (tile == 21) or (tile == 22):
+                if tile in range(20, 30):
                     boat_type = 1
-                if (tile == 30) or (tile == 31) or (tile == 32):
+                if tile in range(30, 40):
                     boat_type = 2
-                if (tile == 40) or (tile == 41) or (tile == 42) or (tile == 43):
+                if tile in range(40, 50):
                     boat_type = 3
-                if (tile == 50) or (tile == 51) or (tile == 52) or (tile == 53) or (tile == 54):
+                if tile in range(50, 60):
                     boat_type = 4
                 
                 if boat_type != 9:
@@ -932,9 +1116,9 @@ while running:
                 if tile_sprite == "blank":
                     pass
                 elif rotate_cell == False:
-                    rightRender.blit(tile_sprite, (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                    rightRender.blit(tile_sprite, (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
                 else:
-                    rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, -32+x*ydil+y*ydil))
+                    rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
 
 
         keys = pygame.key.get_pressed()
@@ -949,23 +1133,23 @@ while running:
         if anim_ticks <= delay:
             left_size = screen.get_width()/2 + scale*(1 - (0.5*t)*diff)
             right_size = screen.get_width()/2 + scale*(1 + (0.5*t)*diff)
-            left_pos = pygame.Vector2(50, 50)
-            right_pos = pygame.Vector2(1230-right_size, 670-(right_size*0.55))
+            left_pos = pygame.Vector2(55, 50-(left_size*0.13))
+            right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
             anim_ticks += 1
         elif delay < anim_ticks <= delay + t:
             left_size = screen.get_width()/2 + scale*(1 - (0.5*t - (anim_ticks - delay))*diff)
             right_size = screen.get_width()/2 + scale*(1 + (0.5*t - (anim_ticks - delay))*diff)
-            left_pos = pygame.Vector2(50, 50)
-            right_pos = pygame.Vector2(1230-right_size, 670-(right_size*0.55))
+            left_pos = pygame.Vector2(55, 50-(left_size*0.13))
+            right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
             anim_ticks += 1
         else:
-            if nuke_anim == False:
+            if nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False:
                 x = selected_cell.x
                 y = selected_cell.y
                 if P2Boats[int(selected_cell.y)][int(selected_cell.x)] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                    cursorDisplay.blit(cursorX, (144+x*xdil-y*xdil, -11+x*ydil+y*ydil))
+                    cursorDisplay.blit(cursorX, (144+x*xdil-y*xdil, -13+x*ydil+y*ydil))
                 else:
-                    cursorDisplay.blit(cursorC, (144+x*xdil-y*xdil, -11+x*ydil+y*ydil))
+                    cursorDisplay.blit(cursorC, (144+x*xdil-y*xdil, -13+x*ydil+y*ydil))
                 nuke_ticks = 0
 
             if keys[pygame.K_SPACE] and nuke_anim == False:
@@ -973,20 +1157,106 @@ while running:
                     pass
                 else:
                     nuke_anim = True
+                    sink_anim_ticks = 0
 
             if nuke_anim == True:
                 x = int(selected_cell.x)
                 y = int(selected_cell.y)
                 target_cell = pygame.Vector2(x, y)
                 if nuke_ticks <= 30:
-                    cursorDisplay.blit(pygame.transform.scale_by(nuke_img, (0.4, 0.4)), ((144+x*xdil-y*xdil+2, (-50)*(30-nuke_ticks)/30 + nuke_ticks/30*(-13+x*ydil+y*ydil))))
+                    cursorDisplay.blit(pygame.transform.scale_by(nuke_img, (0.4, 0.4)), (144+x*xdil-y*xdil+2, (-13+x*ydil+y*ydil) - 5*(30-nuke_ticks)))
+                if P2Boats[y][x] in [10, 11, 20, 21, 22, 30, 31, 32, 40, 41, 42, 43, 50, 51, 52, 53, 54]:
+                    if nuke_ticks == 31:
+                        sound_list = [
+                            explosion_sfx1, explosion_sfx2, explosion_sfx3, explosion_sfx4
+                        ]
+                        pygame.mixer.Sound.play(sound_list[random.randint(0, 3)])
+                    if nuke_ticks in range(31, 78):
+                        if nuke_ticks in [31, 33]:
+                            explosion_img = explosion_frame_1
+                        elif nuke_ticks in [33, 35]:
+                            explosion_img = explosion_frame_2
+                        elif nuke_ticks in [35, 37]:
+                            explosion_img = explosion_frame_3
+                        elif nuke_ticks in [37, 41]:
+                            explosion_img = explosion_frame_4
+                        elif nuke_ticks in [41, 45]:
+                            explosion_img = explosion_frame_5
+                        elif nuke_ticks in [45, 49]:
+                            explosion_img = explosion_frame_6
+                        elif nuke_ticks in [53, 57]:
+                            explosion_img = explosion_frame_7
+                        elif nuke_ticks in [57, 61]:
+                            explosion_img = explosion_frame_8
+                        elif nuke_ticks in [61, 65]:
+                            explosion_img = explosion_frame_9
+                        elif nuke_ticks in [65, 69]:
+                            explosion_img = explosion_frame_10
+                        elif nuke_ticks in [69, 73]:
+                            explosion_img = explosion_frame_11
+                        elif nuke_ticks in [73, 77]:
+                            explosion_img = explosion_frame_12
+                        cursorDisplay.blit(pygame.transform.scale_by(explosion_img, (1, 1)), (126+x*xdil-y*xdil+2, -10+x*ydil+y*ydil))
+                else:
+                    if nuke_ticks == 31:
+                        sound_list = [
+                            splash_sfx1, splash_sfx2, splash_sfx3, splash_sfx4, splash_sfx5
+                        ]
+                        pygame.mixer.Sound.play(sound_list[random.randint(0, 4)])
+                    if nuke_ticks in range(31, 68):
+                        if nuke_ticks in [31, 34]:
+                            splash_img = splash_frame_1
+                        elif nuke_ticks in [34, 37]:
+                            splash_img = splash_frame_2
+                        elif nuke_ticks in [37, 40]:
+                            splash_img = splash_frame_3
+                        elif nuke_ticks in [40, 43]:
+                            splash_img = splash_frame_4
+                        elif nuke_ticks in [43, 46]:
+                            splash_img = splash_frame_5
+                        elif nuke_ticks in [46, 49]:
+                            splash_img = splash_frame_6
+                        elif nuke_ticks in [49, 52]:
+                            splash_img = splash_frame_7
+                        elif nuke_ticks in [52, 55]:
+                            splash_img = splash_frame_8
+                        if nuke_ticks in [55, 58]:
+                            splash_img = splash_frame_9
+                        elif nuke_ticks in [58, 61]:
+                            splash_img = splash_frame_10
+                        elif nuke_ticks in [61, 64]:
+                            splash_img = splash_frame_11
+                        elif nuke_ticks in [64, 67]:
+                            splash_img = splash_frame_12
+                        cursorDisplay.blit(pygame.transform.scale_by(splash_img, (0.75, 0.75)), (134+x*xdil-y*xdil+2, -12+x*ydil+y*ydil))
 
                 nuke_ticks += 1
 
-                if nuke_ticks > 90:
+                if nuke_ticks > 120:
                     P2Boats[y][x] += 5
                     nuke_anim = False
-                    
+                    if any(15 in sl for sl in P2Boats) and any(16 in sl for sl in P2Boats) and P2Boats_sunk[0] == 0:
+                        destroyer_sink_anim = True
+                        P2Boats_sunk[0] = 1
+                    elif any(25 in sl for sl in P2Boats) and any(26 in sl for sl in P2Boats) and any(27 in sl for sl in P2Boats) and P2Boats_sunk[1] == 0:
+                        submarine_sink_anim = True
+                        P2Boats_sunk[1] = 1
+                    if P2Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                        pass
+                    else:
+                        switch("page router")
+
+            if destroyer_sink_anim == True:
+                sink_anim_ticks += 1
+
+                if sink_anim_ticks > 120:
+                    destroyer_sink_anim = False
+            
+            if submarine_sink_anim == True:
+                sink_anim_ticks += 1
+
+                if sink_anim_ticks > 120:
+                    submarine_sink_anim = False
 
     # animate water
     if sea_anim_cd <= 0:
@@ -1013,7 +1283,7 @@ while running:
     dt = clock.tick(60) / 1000
     screen.blit(pygame.transform.scale(placementSurface, (screen.get_width()/1.4, screen.get_width()/1.4)), (380, 50))
     screen.blit(pygame.transform.scale(leftRender, (left_size, left_size)), left_pos)
-    screen.blit(pygame.transform.scale(cursorDisplay, (left_size, left_size)), (50, 0))
+    screen.blit(pygame.transform.scale(cursorDisplay, (left_size, left_size)), (55, 0))
     screen.blit(pygame.transform.scale(rightRender, (right_size, right_size)), right_pos)
     screen.blit(hud, (0, 0))
     
