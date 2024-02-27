@@ -71,11 +71,11 @@
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/aaron/Desktop/NotTheDesktop/Other/github/12SDD Game Dev/sounds;sounds/"
+   "value": "C:/Users/aaron/Desktop/NotTheDesktop/Other/github/12SDD Game Dev/fonts;fonts/"
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/aaron/Desktop/NotTheDesktop/Other/github/12SDD Game Dev/fonts;fonts/"
+   "value": "C:/Users/aaron/Desktop/NotTheDesktop/Other/github/12SDD Game Dev/sounds;sounds/"
   }
  ],
  "nonPyinstallerOptions": {

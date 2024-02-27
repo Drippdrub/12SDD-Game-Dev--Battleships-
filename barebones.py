@@ -41,10 +41,12 @@ font1 = pygame.font.Font(resource_path("fonts\CompassPro.ttf"), 72)
 font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
 
 
-startup_sfx1 = pygame.mixer.Sound("sounds/SFX/Explosion1.wav")
+startup_sfx1 = pygame.mixer.Sound(resource_path("sounds/SFX/Explosion1.wav"))
 startup_sfx1.set_volume(0.75)
-startup_sfx2 = pygame.mixer.Sound("sounds\SFX\Blip1.wav")
+startup_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Blip1.wav"))
 startup_sfx2.set_volume(0.75)
+startup_jingle = pygame.mixer.Sound(resource_path("sounds\Music\weezer.wav"))
+startup_jingle.set_volume(0.75)
 
 place_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\place.wav"))
 place_sfx1.set_volume(0.75)
@@ -71,7 +73,7 @@ splash_sfx4.set_volume(0.75)
 splash_sfx5 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash5.wav"))
 splash_sfx5.set_volume(0.75)
 
-optionButton_img = pygame.image.load("images/button_options.png").convert_alpha()
+optionButton_img = pygame.image.load(resource_path("images/button_options.png")).convert_alpha()
 playButton_img = pygame.image.load(resource_path("images/button_play.png")).convert_alpha()
 playButton_hover = pygame.image.load(resource_path("images/button_play_hover.png")).convert_alpha()
 okayButton_img = pygame.image.load(resource_path("images/button_okay.png")).convert_alpha()
@@ -264,6 +266,8 @@ def switch(screen):
     game_screen = screen
     print(screen)
 
+startup_ticks = 0
+
 selectedPlayerMode = True
 difficulty = "Easy"
 
@@ -335,10 +339,14 @@ boat_len: dict = {0: 2,
                   4: 5,
                   5: 0}
 
-# options widgets
+# main widgets
+playGame = widgets.Button(640, 300, playButton_img, 3, playButton_hover)
+optionsButton = widgets.Button(640, 500, optionButton_img, 3)
+
+# game options widgets
 selectPlayer = widgets.Toggle(640, 300, select1P_img, select2P_img, 1.5)
 selectDiff = widgets.Toggle(640, 430, selectDiffEasy_img, selectDiffHard_img, 0.9)
-optionsProceed = widgets.Button(640, 570, playButton_img, 3, playButton_hover)
+gameOptionsProceed = widgets.Button(640, 570, playButton_img, 3, playButton_hover)
 
 # prompt widgets
 promptDisabled = widgets.Image(640, 420, okayButton_disabled, 3)
@@ -379,12 +387,38 @@ while running:
             running = False
 
     if game_screen == "main":
-        draw_text("Battleships", font2, (0, 0, 0), (1280-font2.size("Battleships")[0])/2, 100)
+        if startup_ticks == 5:
+            pygame.mixer.Sound.play(startup_jingle)
+
+        delay = 105
+        if delay < startup_ticks < delay+20:
+            font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), (84+((delay+20-startup_ticks)*6)))
+        elif startup_ticks == delay+20:
+            font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
+            pygame.mixer.Sound.play(startup_sfx1)
+        elif startup_ticks > delay+20:
+            font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
+        
+        if startup_ticks > delay:
+            draw_text("Battleships", font2, (0, 0, 0), (1280-font2.size("Battleships")[0])/2, 50)
+
+        if startup_ticks == delay+53:
+            pygame.mixer.Sound.play(startup_sfx2)
+        if startup_ticks >= delay+53:
+             if playGame.draw(screen):
+                 switch("options")
+        
+        if startup_ticks == delay+86:
+            pygame.mixer.Sound.play(startup_sfx2)
+        if startup_ticks >= delay+86:
+            optionsButton.draw(screen)
+
+        startup_ticks += 1
 
     elif game_screen == "options":
         selectedPlayerMode = selectPlayer.draw(hud, output=0)
         selectDiff.draw(hud, output=0)
-        if optionsProceed.draw(hud):
+        if gameOptionsProceed.draw(hud):
             switch("page router")
     
     elif game_screen == "page router":
