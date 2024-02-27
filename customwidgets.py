@@ -31,6 +31,7 @@ class Button():
 		self.hovering = False
 
 	def draw(self, surface):
+		past_click = self.clicked
 		action = False
 		#get mouse position
 		pos = pygame.mouse.get_pos()
@@ -40,12 +41,14 @@ class Button():
 			self.hovering = True
 			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
 				self.clicked = True
-				action = True
 		else:
 			self.hovering = False
 
 		if pygame.mouse.get_pressed()[0] == 0:
 			self.clicked = False
+
+		if past_click == True and self.rect.collidepoint(pos) and self.clicked == False:
+			action = True
 
 		#draw button on screen
 		if self.hovering and self.toggle_hover:
