@@ -47,6 +47,7 @@ startup_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Blip1.wav"))
 startup_sfx2.set_volume(0.75)
 startup_jingle = pygame.mixer.Sound(resource_path("sounds\Music\weezer.wav"))
 startup_jingle.set_volume(0.9)
+startup_music = pygame.mixer.music.load(resource_path("sounds\\Music\\unending.wav"))
 
 place_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\place.wav"))
 place_sfx1.set_volume(0.75)
@@ -73,9 +74,12 @@ splash_sfx4.set_volume(0.75)
 splash_sfx5 = pygame.mixer.Sound(resource_path("sounds\SFX\Splash5.wav"))
 splash_sfx5.set_volume(0.75)
 
-optionButton_img = pygame.image.load(resource_path("images/button_options.png")).convert_alpha()
 playButton_img = pygame.image.load(resource_path("images/button_play.png")).convert_alpha()
 playButton_hover = pygame.image.load(resource_path("images/button_play_hover.png")).convert_alpha()
+optionButton_img = pygame.image.load(resource_path("images/button_options.png")).convert_alpha()
+optionButton_hover = pygame.image.load(resource_path("images/button_options_hover.png")).convert_alpha()
+exitButton_img = pygame.image.load(resource_path("images/button_exit.png")).convert_alpha()
+exitButton_hover = pygame.image.load(resource_path("images/button_exit_hover.png")).convert_alpha()
 okayButton_img = pygame.image.load(resource_path("images/button_okay.png")).convert_alpha()
 okayButton_hover = pygame.image.load(resource_path("images/button_okay_hover.png")).convert_alpha()
 okayButton_disabled = pygame.image.load(resource_path("images/button_okay_disabled.png")).convert_alpha()
@@ -222,6 +226,24 @@ cruiser3_tile = pygame.image.load(resource_path("images\isometric tiles\cruiser3
 cruiserX_tile = pygame.image.load(resource_path("images\isometric tiles\cruiserX.png")).convert_alpha()
 cruiserC_tile = pygame.image.load(resource_path("images\isometric tiles\cruiserC.png")).convert_alpha()
 
+cruiser1_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser1\Cruiser1_Sink1.png")).convert_alpha()
+cruiser1_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser1\Cruiser1_Sink2.png")).convert_alpha()
+cruiser1_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser1\Cruiser1_Sink3.png")).convert_alpha()
+cruiser1_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser1\Cruiser1_Sink4.png")).convert_alpha()
+cruiser1_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser1\Cruiser1_Sink5.png")).convert_alpha()
+
+cruiser2_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser2\Cruiser2_Sink1.png")).convert_alpha()
+cruiser2_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser2\Cruiser2_Sink2.png")).convert_alpha()
+cruiser2_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser2\Cruiser2_Sink3.png")).convert_alpha()
+cruiser2_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser2\Cruiser2_Sink4.png")).convert_alpha()
+cruiser2_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser2\Cruiser2_Sink5.png")).convert_alpha()
+
+cruiser3_sink1 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser3\Cruiser3_Sink1.png")).convert_alpha()
+cruiser3_sink2 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser3\Cruiser3_Sink2.png")).convert_alpha()
+cruiser3_sink3 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser3\Cruiser3_Sink3.png")).convert_alpha()
+cruiser3_sink4 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser3\Cruiser3_Sink4.png")).convert_alpha()
+cruiser3_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink Anims\Cruiser\Cruiser3\Cruiser3_Sink5.png")).convert_alpha()
+
 
 battleship1_tile = pygame.image.load(resource_path("images\isometric tiles/bttlship1.png")).convert_alpha()
 battleship2_tile = pygame.image.load(resource_path("images\isometric tiles/bttlship2.png")).convert_alpha()
@@ -341,7 +363,8 @@ boat_len: dict = {0: 2,
 
 # main widgets
 playGame = widgets.Button(640, 300, playButton_img, 3, playButton_hover)
-optionsButton = widgets.Button(640, 500, optionButton_img, 3)
+optionsButton = widgets.Button(640, 450, optionButton_img, 3, optionButton_hover)
+exitGame = widgets.Button(640, 600, exitButton_img, 3, exitButton_hover)
 
 # game options widgets
 selectPlayer = widgets.Toggle(640, 300, select1P_img, select2P_img, 1.5)
@@ -388,9 +411,11 @@ while running:
 
     if game_screen == "main":
         if startup_ticks == 5:
-            pygame.mixer.Sound.play(startup_jingle)
+            # pygame.mixer.Sound.play(startup_jingle)
+            pygame.mixer.music.set_volume(0.75)
+            pygame.mixer.music.play()
 
-        delay = 105
+        delay = 240
         if delay < startup_ticks < delay+20:
             font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), (84+((delay+20-startup_ticks)*6)))
         elif startup_ticks == delay+20:
@@ -402,20 +427,30 @@ while running:
         if startup_ticks > delay:
             draw_text("Battleships", font2, (0, 0, 0), (1280-font2.size("Battleships")[0])/2, 50)
 
-        if startup_ticks == delay+53:
+        interval = 10
+        if startup_ticks == delay+30+interval:
             pygame.mixer.Sound.play(startup_sfx2)
-        if startup_ticks >= delay+53:
+        if startup_ticks >= delay+30+interval:
              if playGame.draw(screen):
-                 switch("options")
+                 switch("game options")
+                 pygame.mixer.music.stop()
+                 pygame.mixer.music.unload()
         
-        if startup_ticks == delay+86:
+        if startup_ticks == delay+30+interval*2:
             pygame.mixer.Sound.play(startup_sfx2)
-        if startup_ticks >= delay+86:
+        if startup_ticks >= delay+30+interval*2:
             optionsButton.draw(screen)
+
+        if startup_ticks == delay+30+interval*3:
+            pygame.mixer.Sound.play(startup_sfx2)
+        if startup_ticks >= delay+30+interval*3:
+            if exitGame.draw(screen):
+                if messagebox.askokcancel("Close Game?", "You are about to leave the game. Continue?"):
+                    running = False
 
         startup_ticks += 1
 
-    elif game_screen == "options":
+    elif game_screen == "game options":
         selectedPlayerMode = selectPlayer.draw(hud, output=0)
         selectDiff.draw(hud, output=0)
         if gameOptionsProceed.draw(hud):
@@ -1199,9 +1234,12 @@ while running:
                         16: destroyer1_sink5,
                         25: submarine3_sink5,
                         26: submarine2_sink5,
-                        27: submarine1_sink5
+                        27: submarine1_sink5,
+                        35: cruiser3_sink5,
+                        36: cruiser2_sink5,
+                        37: cruiser1_sink5
                     }
-                    if (P2Boats_sunk[0] == 1 and tile in [15, 16]) or (P2Boats_sunk[1] == 1 and tile in [25, 26, 27]):
+                    if (P2Boats_sunk[0] == 1 and tile in [15, 16]) or (P2Boats_sunk[1] == 1 and tile in [25, 26, 27]) or (P2Boats_sunk[2] == 1 and tile in [35, 36, 37]):
                         tile_sprite = hit_tiles.get(tile, d_sea_hit_tile)
                 else:
                     tile_sprite = funcs.get(tile, "blank")
@@ -1269,6 +1307,43 @@ while running:
                             tile_sprite = submarine2_sink5
                         elif tile == 27:
                             tile_sprite = submarine1_sink5
+
+                if cruiser_sink_anim == True:
+                    if sink_anim_ticks in range(0, 15):
+                        if tile == 35:
+                            tile_sprite = cruiser3_sink1
+                        elif tile == 36:
+                            tile_sprite = cruiser2_sink1
+                        elif tile == 37:
+                            tile_sprite = cruiser1_sink1
+                    elif sink_anim_ticks in range(15, 30):
+                        if tile == 35:
+                            tile_sprite = cruiser3_sink2
+                        elif tile == 36:
+                            tile_sprite = cruiser2_sink2
+                        elif tile == 37:
+                            tile_sprite = cruiser1_sink2
+                    elif sink_anim_ticks in range(30, 45):
+                        if tile == 35:
+                            tile_sprite = cruiser3_sink3
+                        elif tile == 36:
+                            tile_sprite = cruiser2_sink3
+                        elif tile == 37:
+                            tile_sprite = cruiser1_sink3
+                    elif sink_anim_ticks in range(45, 60):
+                        if tile == 35:
+                            tile_sprite = cruiser3_sink4
+                        elif tile == 36:
+                            tile_sprite = cruiser2_sink4
+                        elif tile == 37:
+                            tile_sprite = cruiser1_sink4
+                    elif sink_anim_ticks in range(60, 75):
+                        if tile == 35:
+                            tile_sprite = cruiser3_sink5
+                        elif tile == 36:
+                            tile_sprite = cruiser2_sink5
+                        elif tile == 37:
+                            tile_sprite = cruiser1_sink5
                         
 
                 if tile_sprite == "blank":
@@ -1374,9 +1449,13 @@ while running:
                             16: destroyer1_sink5,
                             25: submarine3_sink5,
                             26: submarine2_sink5,
-                            27: submarine1_sink5
+                            27: submarine1_sink5,
+                            35: cruiser3_sink5,
+                            36: cruiser2_sink5,
+                            37: cruiser1_sink5
+
                         }
-                        if (P1Boats_sunk[0] == 1 and tile in [15, 16]) or (P1Boats_sunk[1] == 1 and tile in [25, 26, 27]):
+                        if (P1Boats_sunk[0] == 1 and tile in [15, 16]) or (P1Boats_sunk[1] == 1 and tile in [25, 26, 27]) or (P1Boats_sunk[2] == 1 and tile in [35, 36, 37]):
                             tile_sprite = hit_tiles.get(tile, d_sea_hit_tile)
                 else:
                     tile_sprite = funcs.get(tile, funcs.get(tile-5, "blank"))
@@ -1425,7 +1504,7 @@ while running:
                 right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
                 anim_ticks += 1
         else:
-            if nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False:
+            if nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False and cruiser_sink_anim == False:
                 x = selected_cell.x
                 y = selected_cell.y
                 if P2Boats[int(selected_cell.y)][int(selected_cell.x)] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
@@ -1523,6 +1602,9 @@ while running:
                     elif any(25 in sl for sl in P2Boats) and any(26 in sl for sl in P2Boats) and any(27 in sl for sl in P2Boats) and P2Boats_sunk[1] == 0:
                         submarine_sink_anim = True
                         P2Boats_sunk[1] = 1
+                    elif any(35 in sl for sl in P2Boats) and any(36 in sl for sl in P2Boats) and any(37 in sl for sl in P2Boats) and P2Boats_sunk[2] == 0:
+                        cruiser_sink_anim = True
+                        P2Boats_sunk[2] = 1
                     if P2Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                         pass
                     else:
@@ -1539,6 +1621,12 @@ while running:
 
                 if sink_anim_ticks > 120:
                     submarine_sink_anim = False
+
+            if cruiser_sink_anim == True:
+                sink_anim_ticks += 1
+
+                if sink_anim_ticks > 120:
+                    cruiser_sink_anim = False
 
     # animate water
     if sea_anim_cd <= 0:
