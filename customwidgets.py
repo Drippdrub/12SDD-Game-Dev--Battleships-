@@ -17,14 +17,14 @@ class Button():
 		width = image.get_width()
 		height = image.get_height()
 		self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
-		self.toggle_hover = False
+		self.toggle_click = False
 		try:
-			hover = args[0]
+			click = args[0]
 		except:
-			hover = None
-		if hover:
-			self.toggle_hover = True
-			self.hover = pygame.transform.scale(args[0], (int(width * scale), int(height * scale)))
+			click = None
+		if click:
+			self.toggle_click = True
+			self.click = pygame.transform.scale(args[0], (int(width * scale), int(height * scale)))
 		self.rect = self.image.get_rect()
 		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2))
 		self.clicked = False
@@ -51,8 +51,11 @@ class Button():
 			action = True
 
 		#draw button on screen
-		if self.hovering and self.toggle_hover:
-			surface.blit(self.hover, (self.rect.x, self.rect.y))
+		if self.hovering:
+			if self.clicked == False:
+				surface.blit(pygame.transform.scale_by(self.image, (1.1, 1.1)), (self.rect.x-self.image.get_width()*0.05, self.rect.y-self.image.get_height()*0.05))
+			elif self.toggle_click == True:
+				surface.blit(pygame.transform.scale_by(self.click, (1.1, 1.1)), (self.rect.x-self.image.get_width()*0.05, self.rect.y-self.image.get_height()*0.05))
 		else:
 			surface.blit(self.image, (self.rect.x, self.rect.y))
 

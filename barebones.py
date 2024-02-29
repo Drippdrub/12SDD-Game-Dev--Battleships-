@@ -46,7 +46,7 @@ startup_sfx1.set_volume(0.75)
 startup_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Blip1.wav"))
 startup_sfx2.set_volume(0.75)
 startup_jingle = pygame.mixer.Sound(resource_path("sounds\Music\weezer.wav"))
-startup_jingle.set_volume(0.75)
+startup_jingle.set_volume(0.9)
 
 place_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\place.wav"))
 place_sfx1.set_volume(0.75)
