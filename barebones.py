@@ -415,35 +415,37 @@ while running:
             pygame.mixer.music.set_volume(0.75)
             pygame.mixer.music.play()
 
-        delay = 240
-        if delay < startup_ticks < delay+20:
-            font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), (84+((delay+20-startup_ticks)*6)))
-        elif startup_ticks == delay+20:
+        delay = 215
+        duration = 40
+        if delay < startup_ticks < delay+duration:
+            font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), (84+((delay+duration-startup_ticks)*6)))
+        elif startup_ticks == delay+duration:
             font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
             pygame.mixer.Sound.play(startup_sfx1)
-        elif startup_ticks > delay+20:
+        elif startup_ticks > delay+duration:
             font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
         
         if startup_ticks > delay:
             draw_text("Battleships", font2, (0, 0, 0), (1280-font2.size("Battleships")[0])/2, 50)
 
+        pause = 10
         interval = 10
-        if startup_ticks == delay+30+interval:
+        if startup_ticks == delay+pause+duration+interval:
             pygame.mixer.Sound.play(startup_sfx2)
-        if startup_ticks >= delay+30+interval:
+        if startup_ticks >= delay+pause+duration+interval:
              if playGame.draw(screen):
                  switch("game options")
                  pygame.mixer.music.stop()
                  pygame.mixer.music.unload()
         
-        if startup_ticks == delay+30+interval*2:
+        if startup_ticks == delay+pause+duration+interval*2:
             pygame.mixer.Sound.play(startup_sfx2)
-        if startup_ticks >= delay+30+interval*2:
+        if startup_ticks >= delay+pause+duration+interval*2:
             optionsButton.draw(screen)
 
-        if startup_ticks == delay+30+interval*3:
+        if startup_ticks == delay+pause+duration+interval*3:
             pygame.mixer.Sound.play(startup_sfx2)
-        if startup_ticks >= delay+30+interval*3:
+        if startup_ticks >= delay+pause+duration+interval*3:
             if exitGame.draw(screen):
                 if messagebox.askokcancel("Close Game?", "You are about to leave the game. Continue?"):
                     running = False
