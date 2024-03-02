@@ -298,6 +298,7 @@ startup_ticks = 0
 
 selectedPlayerMode = True
 difficulty = "Easy"
+dbltime = 2
 
 inGame = False
 playersReady = 0
@@ -330,6 +331,11 @@ right_pos = pygame.Vector2(0, 0)
 
 AI_hit_reg = []
 Prev_action = []
+locked_on_ship = False
+lock_coords = pygame.Vector2(0, 0)
+check_dir = 0
+found_dir = 0
+double_check = 0
 
 destroyer: dict = {0: destroyer2_tile,
                     1: destroyer1_tile
@@ -485,7 +491,11 @@ while running:
 
     elif game_screen == "game options":
         selectedPlayerMode = selectPlayer.draw(hud, output=0)
-        selectDiff.draw(hud, output=0)
+        selectedDiff = selectDiff.draw(hud, output=0)
+        if selectedDiff == True:
+            difficulty = "Hard"
+        else:
+            difficulty = "Easy"
         if gameOptionsProceed.draw(hud):
             switch("page router")
     
@@ -550,6 +560,7 @@ while running:
                 x = 0
                 y = 0
                 target_cell = pygame.Vector2(0,0)
+                locked_on_ship = False
                 switch("P1Game")
             else:
                 if selectedPlayerMode == False: # one player mode
@@ -557,7 +568,7 @@ while running:
                         anim_ticks = 0
                         switch("P1Game")
                     else:
-                        locked_on_ship = False
+                        
                         anim_ticks = 0
                         switch("AI Turn")
                 else:
@@ -1145,13 +1156,13 @@ while running:
             right_size = screen.get_width()/2 + scale*(1 - (0.5*t)*diff)
             left_pos = pygame.Vector2(55, 50-(left_size*0.13))
             right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
-            anim_ticks += 1
+            anim_ticks += 1*dbltime
         elif delay < anim_ticks <= delay + t:
             left_size = screen.get_width()/2 + scale*(1 + (0.5*t - (anim_ticks - delay))*diff)
             right_size = screen.get_width()/2 + scale*(1 - (0.5*t - (anim_ticks - delay))*diff)
             left_pos = pygame.Vector2(55, 50-(left_size*0.13))
             right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
-            anim_ticks += 1
+            anim_ticks += 1*dbltime
         else:
             Prev_action = []
             if difficulty == "Easy":
@@ -1170,7 +1181,9 @@ while running:
                         else:
                             switch("page router")
                             break
-            elif diff == "Hard":
+            elif difficulty == "Hard":
+                print(locked_on_ship)
+                print(check_dir)
                 if locked_on_ship == False:
                     while True:
                         offset = random.randint(0, 1)
@@ -1187,94 +1200,215 @@ while running:
                             x = true_column
                             y = true_row
                             P1Boats[y][x] += 5
-                            Prev_action.append(decision)
+                            Prev_action.append(10*y+x)
                             if P1Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                                locked_on_ship == True
+                                locked_on_ship = True
                                 lock_coords = pygame.Vector2(x, y)
+                                OG_coords = pygame.Vector2(x, y)
                                 check_dir = 1
                                 found_dir = 0
+                                double_check = 0
+                                print("locked on")
+                                print(Prev_action)
                                 break
                             else:
                                 switch("page router")
                                 break
                 if locked_on_ship == True:
-                    x = lock_coords.x
-                    y = lock_coords.y
+                    x = int(lock_coords.x)
+                    y = int(lock_coords.y)
                     if found_dir == 0:
                         while True:
                             if check_dir == 1:
                                 if y == 0 or P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                                    check_dir == 2
-                                else:
-                                    AI_hit_reg.append(10*y+x)
+                                    check_dir = 2
+                                    lock_coords = OG_coords
+                                elif not 10*(y-1)+x in AI_hit_reg:
+                                    AI_hit_reg.append(10*(y-1)+x)
                                     P1Boats[y-1][x] += 5
-                                    Prev_action.append(10*y+x)
+                                    Prev_action.append(10*(y-1)+x)
+                                    print(Prev_action)
                                     if P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                         found_dir = 1
+                                        print("found")
                                         lock_coords = pygame.Vector2(x, y-1)
                                         break
                                     else:
-                                        check_dir == 2
+                                        check_dir = 2
+                                        print("switch")
                                         switch("page router")
                                         break
+                                else:
+                                    check_dir = 2
+                                    lock_coords = OG_coords
                             elif check_dir == 2:
                                 if x == 9 or P1Boats[y][x+1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                                    check_dir == 3
-                                else:
-                                    AI_hit_reg.append(10*y+x)
+                                    check_dir = 3
+                                    lock_coords = OG_coords
+                                elif not 10*y+(x+1) in AI_hit_reg:
+                                    AI_hit_reg.append(10*y+(x+1))
                                     P1Boats[y][x+1] += 5
-                                    Prev_action.append(10*y+x)
+                                    Prev_action.append(10*y+(x+1))
+                                    print(Prev_action)
                                     if P1Boats[y][x+1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                         found_dir = 2
+                                        print("found")
                                         lock_coords = pygame.Vector2(x+1, y)
                                         break
                                     else:
-                                        check_dir == 3
+                                        check_dir = 3
                                         switch("page router")
                                         break
+                                else:
+                                    check_dir = 3
+                                    lock_coords = OG_coords
                             elif check_dir == 3:
                                 if y == 9 or P1Boats[y+1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                                    check_dir == 4
-                                else:
-                                    AI_hit_reg.append(10*y+x)
+                                    check_dir = 4
+                                    lock_coords = OG_coords
+                                elif not 10*(y+1)+x in AI_hit_reg:
+                                    AI_hit_reg.append(10*(y+1)+x)
                                     P1Boats[y+1][x] += 5
-                                    Prev_action.append(10*y+x)
+                                    Prev_action.append(10*(y+1)+x)
+                                    print(Prev_action)
                                     if P1Boats[y+1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                         found_dir = 3
+                                        print("found")
                                         lock_coords = pygame.Vector2(x, y+1)
                                         break
                                     else:
-                                        check_dir == 4
+                                        check_dir = 4
                                         switch("page router")
                                         break
+                                else:
+                                    check_dir = 4
+                                    lock_coords = OG_coords
                             elif check_dir == 4:
                                 if x == 0 or P1Boats[y][x-1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                                    locked_on_ship == False
+                                    locked_on_ship = False
                                     break
-                                else:
-                                    AI_hit_reg.append(10*y+x)
+                                elif not 10*y+(x-1) in AI_hit_reg:
+                                    AI_hit_reg.append(10*y+(x-1))
                                     P1Boats[y][x-1] += 5
-                                    Prev_action.append(10*y+x)
+                                    Prev_action.append(10*y+(x-1))
+                                    print(Prev_action)
                                     if P1Boats[y][x-1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                         found_dir = 4
+                                        print("found")
                                         lock_coords = pygame.Vector2(x-1, y)
                                         break
                                     else:
-                                        locked_on_ship == False
+                                        locked_on_ship = False
                                         switch("page router")
                                         break
-                    if found_dir == 1:
-                        AI_hit_reg.append(10*y+x)
-                        P1Boats[y-1][x] += 5
-                        Prev_action.append(10*y+x)
-                        if P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                            found_dir = 4
-                            lock_coords
-                            break
-                        else:
-                            locked_on_ship == False
-                            switch("page router")
-                            break
+                    else:
+                        lock = True
+                        while lock:
+                            x = int(lock_coords.x)
+                            y = int(lock_coords.y)
+                            if found_dir == 1:
+                                if y == 0 or P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                    found_dir = 3
+                                    lock_coords = OG_coords
+                                    double_check += 1
+                                else:
+                                    AI_hit_reg.append(10*(y-1)+x)
+                                    P1Boats[y-1][x] += 5
+                                    Prev_action.append(10*(y-1)+x)
+                                    if P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                        lock_coords = pygame.Vector2(x, y-1)
+                                    else:
+                                        found_dir = 3
+                                        lock_coords = OG_coords
+                                        double_check += 1
+                                        print("dead end")
+                                        switch("page router")
+                                        lock = False
+                            elif found_dir == 2:
+                                if x == 9 or P1Boats[y][x+1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                    found_dir = 4
+                                    lock_coords = OG_coords
+                                    double_check += 1
+                                else:
+                                    AI_hit_reg.append(10*y+(x+1))
+                                    P1Boats[y][x+1] += 5
+                                    Prev_action.append(10*y+(x+1))
+                                    if P1Boats[y][x+1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                        lock_coords = pygame.Vector2(x+1, y)
+                                    else:
+                                        found_dir = 4
+                                        lock_coords = OG_coords
+                                        double_check += 1
+                                        print("dead end")
+                                        switch("page router")
+                                        lock = False
+                            elif found_dir == 3:
+                                if y == 9 or P1Boats[y+1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                    found_dir = 1
+                                    lock_coords = OG_coords
+                                    double_check += 1
+                                else:
+                                    AI_hit_reg.append(10*(y+1)+x)
+                                    P1Boats[y+1][x] += 5
+                                    Prev_action.append(10*(y+1)+x)
+                                    if P1Boats[y+1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                        lock_coords = pygame.Vector2(x, y+1)
+                                    else:
+                                        found_dir = 1
+                                        lock_coords = OG_coords
+                                        double_check += 1
+                                        print("dead end")
+                                        switch("page router")
+                                        lock = False
+                            elif found_dir == 4:
+                                if x == 0 or P1Boats[y][x-1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                    found_dir = 2
+                                    lock_coords = OG_coords
+                                    double_check += 1
+                                else:
+                                    AI_hit_reg.append(10*y+(x-1))
+                                    P1Boats[y][x-1] += 5
+                                    Prev_action.append(10*y+(x-1))
+                                    if P1Boats[y][x-1] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                        lock_coords = pygame.Vector2(x-1, y)
+                                    else:
+                                        found_dir = 2
+                                        lock_coords = OG_coords
+                                        double_check += 1
+                                        print("dead end")
+                                        switch("page router")
+                                        lock = False
+                            if double_check == 2:
+                                locked_on_ship = False
+                                print("unlocked")
+                                lock = False
+                            if any(15 in sl for sl in P1Boats) and any(16 in sl for sl in P1Boats) and P1Boats_sunk[0] == 0:
+                                locked_on_ship = False
+                                print("unlocked")
+                                P1Boats_sunk[0] = 1
+                                lock = False
+                            elif any(25 in sl for sl in P1Boats) and any(26 in sl for sl in P1Boats) and any(27 in sl for sl in P1Boats) and P1Boats_sunk[1] == 0:
+                                locked_on_ship = False
+                                print("unlocked")
+                                P1Boats_sunk[1] = 1
+                                lock = False
+                            elif any(35 in sl for sl in P1Boats) and any(36 in sl for sl in P1Boats) and any(37 in sl for sl in P1Boats) and P1Boats_sunk[2] == 0:
+                                locked_on_ship = False
+                                print("unlocked")
+                                P1Boats_sunk[2] = 1
+                                lock = False
+                            elif any(45 in sl for sl in P1Boats) and any(46 in sl for sl in P1Boats) and any(47 in sl for sl in P1Boats) and any(48 in sl for sl in P1Boats) and P1Boats_sunk[3] == 0:
+                                locked_on_ship = False
+                                print("unlocked")
+                                P1Boats_sunk[3] = 1
+                                lock = False
+                            elif any(55 in sl for sl in P1Boats) and any(56 in sl for sl in P1Boats) and any(57 in sl for sl in P1Boats) and any(58 in sl for sl in P1Boats) and any(59 in sl for sl in P1Boats) and P1Boats_sunk[4] == 0:
+                                locked_on_ship = False
+                                print("unlocked")
+                                P1Boats_sunk[4] = 1
+                                lock = False
+                            for i in P1Boats:
+                                print(i)
 
     elif game_screen == "P1Game":
         funcs: dict = {00: d_sea_tile,
@@ -1597,7 +1731,7 @@ while running:
             right_size = screen.get_width()/2 + scale*(1 + (0.5*t)*diff)
             left_pos = pygame.Vector2(55, 50-(left_size*0.13))
             right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
-            anim_ticks += 1
+            anim_ticks += 1*dbltime
             if nuke_anim2 == True:
                 if anim_ticks <= 30:
                     i = target_cell.x
@@ -1617,7 +1751,7 @@ while running:
                 right_size = screen.get_width()/2 + scale*(1 + (0.5*t - (anim_ticks - delay))*diff)
                 left_pos = pygame.Vector2(55, 50-(left_size*0.13))
                 right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
-                anim_ticks += 1
+                anim_ticks += 1*dbltime
         else:
             if nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False and cruiser_sink_anim == False:
                 x = selected_cell.x
@@ -1648,29 +1782,29 @@ while running:
                         ]
                         pygame.mixer.Sound.play(sound_list[random.randint(0, 3)])
                     if nuke_ticks in range(31, 78):
-                        if nuke_ticks in [31, 33]:
+                        if nuke_ticks in range(31, 33):
                             explosion_img = explosion_frame_1
-                        elif nuke_ticks in [33, 35]:
+                        elif nuke_ticks in range(33, 35):
                             explosion_img = explosion_frame_2
-                        elif nuke_ticks in [35, 37]:
+                        elif nuke_ticks in range(35, 37):
                             explosion_img = explosion_frame_3
-                        elif nuke_ticks in [37, 41]:
+                        elif nuke_ticks in range(37, 41):
                             explosion_img = explosion_frame_4
-                        elif nuke_ticks in [41, 45]:
+                        elif nuke_ticks in range(41, 45):
                             explosion_img = explosion_frame_5
-                        elif nuke_ticks in [45, 49]:
+                        elif nuke_ticks in range(45, 49):
                             explosion_img = explosion_frame_6
-                        elif nuke_ticks in [53, 57]:
+                        elif nuke_ticks in range(53, 57):
                             explosion_img = explosion_frame_7
-                        elif nuke_ticks in [57, 61]:
+                        elif nuke_ticks in range(57, 61):
                             explosion_img = explosion_frame_8
-                        elif nuke_ticks in [61, 65]:
+                        elif nuke_ticks in range(61, 65):
                             explosion_img = explosion_frame_9
-                        elif nuke_ticks in [65, 69]:
+                        elif nuke_ticks in range(65, 69):
                             explosion_img = explosion_frame_10
-                        elif nuke_ticks in [69, 73]:
+                        elif nuke_ticks in range(69, 73):
                             explosion_img = explosion_frame_11
-                        elif nuke_ticks in [73, 77]:
+                        elif nuke_ticks in range(73, 77):
                             explosion_img = explosion_frame_12
                         leftOverlay.blit(pygame.transform.scale_by(explosion_img, (1, 1)), (126+x*xdil-y*xdil+2, -10+x*ydil+y*ydil))
                 else:
@@ -1680,33 +1814,33 @@ while running:
                         ]
                         pygame.mixer.Sound.play(sound_list[random.randint(0, 4)])
                     if nuke_ticks in range(31, 68):
-                        if nuke_ticks in [31, 34]:
+                        if nuke_ticks in range(31, 34):
                             splash_img = splash_frame_1
-                        elif nuke_ticks in [34, 37]:
+                        elif nuke_ticks in range(34, 37):
                             splash_img = splash_frame_2
-                        elif nuke_ticks in [37, 40]:
+                        elif nuke_ticks in range(37, 40):
                             splash_img = splash_frame_3
-                        elif nuke_ticks in [40, 43]:
+                        elif nuke_ticks in range(40, 43):
                             splash_img = splash_frame_4
-                        elif nuke_ticks in [43, 46]:
+                        elif nuke_ticks in range(43, 46):
                             splash_img = splash_frame_5
-                        elif nuke_ticks in [46, 49]:
+                        elif nuke_ticks in range(46, 49):
                             splash_img = splash_frame_6
-                        elif nuke_ticks in [49, 52]:
+                        elif nuke_ticks in range(49, 52):
                             splash_img = splash_frame_7
-                        elif nuke_ticks in [52, 55]:
+                        elif nuke_ticks in range(52, 55):
                             splash_img = splash_frame_8
-                        if nuke_ticks in [55, 58]:
+                        if nuke_ticks in range(55, 58):
                             splash_img = splash_frame_9
-                        elif nuke_ticks in [58, 61]:
+                        elif nuke_ticks in range(58, 61):
                             splash_img = splash_frame_10
-                        elif nuke_ticks in [61, 64]:
+                        elif nuke_ticks in range(61, 64):
                             splash_img = splash_frame_11
-                        elif nuke_ticks in [64, 67]:
+                        elif nuke_ticks in range(64, 67):
                             splash_img = splash_frame_12
                         leftOverlay.blit(pygame.transform.scale_by(splash_img, (0.75, 0.75)), (134+x*xdil-y*xdil+2, -12+x*ydil+y*ydil))
 
-                nuke_ticks += 1
+                nuke_ticks += 1*dbltime
 
                 if nuke_ticks > 120:
                     P2Boats[y][x] += 5
@@ -1720,25 +1854,29 @@ while running:
                     elif any(35 in sl for sl in P2Boats) and any(36 in sl for sl in P2Boats) and any(37 in sl for sl in P2Boats) and P2Boats_sunk[2] == 0:
                         cruiser_sink_anim = True
                         P2Boats_sunk[2] = 1
+                    elif any(45 in sl for sl in P2Boats) and any(46 in sl for sl in P2Boats) and any(47 in sl for sl in P2Boats) and any(48 in sl for sl in P2Boats) and P2Boats_sunk[3] == 0:
+                        pass
+                    elif any(55 in sl for sl in P2Boats) and any(56 in sl for sl in P2Boats) and any(57 in sl for sl in P2Boats) and any(58 in sl for sl in P2Boats) and any(59 in sl for sl in P2Boats) and P2Boats_sunk[4] == 0:
+                        pass
                     if P2Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                         pass
                     else:
                         switch("page router")
 
             if destroyer_sink_anim == True:
-                sink_anim_ticks += 1
+                sink_anim_ticks += 1*dbltime
 
                 if sink_anim_ticks > 120:
                     destroyer_sink_anim = False
             
             if submarine_sink_anim == True:
-                sink_anim_ticks += 1
+                sink_anim_ticks += 1*dbltime
 
                 if sink_anim_ticks > 120:
                     submarine_sink_anim = False
 
             if cruiser_sink_anim == True:
-                sink_anim_ticks += 1
+                sink_anim_ticks += 1*dbltime
 
                 if sink_anim_ticks > 120:
                     cruiser_sink_anim = False
