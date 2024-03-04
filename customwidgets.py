@@ -9,7 +9,12 @@ class Image():
 		self.rect = self.image.get_rect()
 		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2))
 	
-	def draw(self, surface):
+	def draw(self, surface, *args):
+		try:
+			alpha = args[0]
+		except:
+			alpha = 255
+		self.image.set_alpha(alpha)
 		surface.blit(self.image, (self.rect.x, self.rect.y))
 
 class Button():
