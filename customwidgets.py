@@ -10,10 +10,11 @@ class Image():
 		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2))
 	
 	def draw(self, surface, *args):
+		alpha = 255
 		try:
 			alpha = args[0]
 		except:
-			alpha = 255
+			pass
 		self.image.set_alpha(alpha)
 		surface.blit(self.image, (self.rect.x, self.rect.y))
 

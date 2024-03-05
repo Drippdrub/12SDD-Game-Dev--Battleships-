@@ -82,6 +82,9 @@ place_sfx1.set_volume(0.75)
 denyClick_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\DenyClick.wav"))
 denyClick_sfx1.set_volume(0.75)
 
+sink_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\Sink.wav"))
+sink_sfx1.set_volume(0.75)
+
 explosion_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\Explosion1.wav"))
 explosion_sfx1.set_volume(0.75)
 explosion_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Explosion2.wav"))
@@ -128,6 +131,12 @@ player2Board_img = pygame.image.load(resource_path("images\Player2 Board.png")).
 ai_easy_Board_img = pygame.image.load(resource_path("images\AI Easy Board.png")).convert_alpha()
 ai_hard_Board_img = pygame.image.load(resource_path("images\AI Hard Board.png")).convert_alpha()
 middle_Board_img = pygame.image.load(resource_path("images\Middle Board.png")).convert_alpha()
+big_Board_img = pygame.image.load(resource_path("images\Big Board.png")).convert_alpha()
+
+hud_P1P2_img = pygame.image.load(resource_path("images\Huds\Hud1.png")).convert_alpha()
+hug_P2P1_img = pygame.image.load(resource_path("images\Huds\Hud4.png")).convert_alpha()
+hud_P1A1_img = pygame.image.load(resource_path("images\Huds\Hud2.png")).convert_alpha()
+hud_P1A2_img = pygame.image.load(resource_path("images\Huds\Hud3.png")).convert_alpha()
 
 ocean_screen = pygame.image.load(resource_path("images/Ocean.png")).convert_alpha()
 
@@ -480,6 +489,7 @@ playGame = widgets.Button(640, 250, playButton_img, 3, playButton_hover)
 optionsButton = widgets.Button(640, 375, optionButton_img, 3, optionButton_hover)
 openCredits = widgets.Button(640, 500, creditsButton_img, 3, creditsButton_hover)
 exitGame = widgets.Button(640, 625, exitButton_img, 3, exitButton_hover)
+black = widgets.Image(0, 0, black_screen, 4)
 
 # option widgets
 backButton = widgets.Button(75, 75, backButton_img, 2)
@@ -542,7 +552,7 @@ while running:
     if game_screen == "main":
         scale = 1
         bg_tile = math.ceil(SCREEN_WIDTH/(1280*scale))+1
-        if startup_ticks in range(0, 200):
+        if startup_ticks in range(0, 240):
             screen.blit(pygame.transform.scale(ocean_screen, (1280*scale, 720*scale)), (0, 0))
         else:
             for i in range(0, bg_tile):
@@ -575,15 +585,14 @@ while running:
             
             startup_door.draw(screen)
         
-        if startup_ticks <= 50:
-            black = widgets.Image(0, 0, black_screen, 4)
-            black.draw(screen, 250-5*startup_ticks)
+        if startup_ticks <= 100:
+            black.draw(screen, 250-2.5*startup_ticks)
 
-        if startup_ticks == 0:
+        if startup_ticks == 1:
             # pygame.mixer.Sound.play(startup_jingle)
             pygame.mixer.music.play()
 
-        delay = 160
+        delay = 200
         duration = 40
         if delay < startup_ticks < delay+duration:
             font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), (84+((delay+duration-startup_ticks)*6)))
@@ -628,6 +637,9 @@ while running:
         startup_ticks += 1
 
     elif game_screen == "options":
+        screen.blit(pygame.transform.scale(ocean_screen, (1280*scale, 720*scale)), (0, 0))
+        screen.blit(big_Board_img, (0, 0))
+
         if backButton.draw(hud):
             switch("main")
 
@@ -1339,7 +1351,7 @@ while running:
                         59: carrier1_sink5
                     }
                     if (P1Boats_sunk[0] == 1 and tile in [15, 16]) or (P1Boats_sunk[1] == 1 and tile in [25, 26, 27])\
-                        or (P1Boats_sunk[2] == 1 and tile in [35, 36, 37]) or (P2Boats_sunk[3] == 1 and tile in [45, 46, 47, 48])\
+                        or (P1Boats_sunk[2] == 1 and tile in [35, 36, 37]) or (P1Boats_sunk[3] == 1 and tile in [45, 46, 47, 48])\
                         or (P1Boats_sunk[4] == 1 and tile in [55, 56, 57, 58, 59]):
                         tile_sprite = hit_tiles.get(tile, d_sea_hit_tile)
                 else:
@@ -1657,6 +1669,7 @@ while running:
                                 lock = False
 
     elif game_screen == "P1Game":
+
         funcs: dict = {00: d_sea_tile,
                             10: destroyer2_tile,
                             11: destroyer1_tile,
@@ -2108,7 +2121,7 @@ while running:
                     i = target_cell.x
                     j = target_cell.y
                     rightOverlay.blit(pygame.transform.scale_by(nuke_img, (0.4, 0.4)), (144+i*xdil-j*xdil+2, (37+i*ydil+j*ydil) - 5*(30-anim_ticks)))
-            elif door_anim == False and P1Boats_sunk == [1, 1, 1, 1, 1]:
+            elif selectedPlayerMode == False and door_anim == False and P1Boats_sunk == [1, 1, 1, 1, 1] and Prev_action == []:
                     door_anim = True
                     door_ticks = 0
         elif delay < anim_ticks <= delay + t:
@@ -2250,6 +2263,7 @@ while running:
                 
                 if sink_anim_ticks == 1:
                     offset = shake()
+                    pygame.mixer.Sound.play(sink_sfx1)
 
                 if sink_anim_ticks > 120:
                     destroyer_sink_anim = False
@@ -2259,6 +2273,7 @@ while running:
                 
                 if sink_anim_ticks == 1:
                     offset = shake()
+                    pygame.mixer.Sound.play(sink_sfx1)
 
                 if sink_anim_ticks > 120:
                     submarine_sink_anim = False
@@ -2268,6 +2283,7 @@ while running:
                 
                 if sink_anim_ticks == 1:
                     offset = shake()
+                    pygame.mixer.Sound.play(sink_sfx1)
 
                 if sink_anim_ticks > 120:
                     cruiser_sink_anim = False
@@ -2277,6 +2293,7 @@ while running:
                 
                 if sink_anim_ticks == 1:
                     offset = shake()
+                    pygame.mixer.Sound.play(sink_sfx1)
 
                 if sink_anim_ticks > 120:
                     battleship_sink_anim = False
@@ -2286,37 +2303,46 @@ while running:
                 
                 if sink_anim_ticks == 1:
                     offset = shake()
+                    pygame.mixer.Sound.play(sink_sfx1)
 
                 if sink_anim_ticks > 120:
                     carrier_sink_anim = False
+                    
+        if selectedPlayerMode == False:
+            if difficulty == "Easy":
+                hud.blit(hud_P1A1_img, (0, 0))
+            else:
+                hud.blit(hud_P1A2_img, (0, 0))
+        else:
+            hud.blit(hud_P1P2_img, (0, 0))
 
-            if door_anim == True:
-                
-                f = 2
-                if door_ticks // f <= f*0:
-                    switch_door = widgets.Image(640, 360, blast_door_8, 1)
-                elif door_ticks // f == f*1:
-                    switch_door = widgets.Image(640, 360, blast_door_7, 1)
-                elif door_ticks // f == f*2:
-                    switch_door = widgets.Image(640, 360, blast_door_6, 1)
-                elif door_ticks // f == f*3:
-                    switch_door = widgets.Image(640, 360, blast_door_5, 1)
-                elif door_ticks // f == f*4:
-                    switch_door = widgets.Image(640, 360, blast_door_4, 1)
-                elif door_ticks// f == f*5:
-                    switch_door = widgets.Image(640, 360, blast_door_3, 1)
-                elif door_ticks // f == f*6:
-                    switch_door = widgets.Image(640, 360, blast_door_2, 1)
-                elif door_ticks // f == f*7:
-                    switch_door = widgets.Image(640, 360, blast_door_1, 1)
-                
-                switch_door.draw(hud)
+        if door_anim == True:
+            
+            f = 2
+            if door_ticks // f <= f*0:
+                switch_door = widgets.Image(640, 360, blast_door_8, 1)
+            elif door_ticks // f == f*1:
+                switch_door = widgets.Image(640, 360, blast_door_7, 1)
+            elif door_ticks // f == f*2:
+                switch_door = widgets.Image(640, 360, blast_door_6, 1)
+            elif door_ticks // f == f*3:
+                switch_door = widgets.Image(640, 360, blast_door_5, 1)
+            elif door_ticks // f == f*4:
+                switch_door = widgets.Image(640, 360, blast_door_4, 1)
+            elif door_ticks// f == f*5:
+                switch_door = widgets.Image(640, 360, blast_door_3, 1)
+            elif door_ticks // f == f*6:
+                switch_door = widgets.Image(640, 360, blast_door_2, 1)
+            elif door_ticks // f == f*7:
+                switch_door = widgets.Image(640, 360, blast_door_1, 1)
+            
+            switch_door.draw(hud)
 
-                if door_ticks > 30:
-                    door_anim = False
-                    switch("page router")
+            if door_ticks > 30:
+                door_anim = False
+                switch("page router")
 
-                door_ticks += 1
+            door_ticks += 1
     
     elif game_screen == "win":
         draw_text(f"Winner: {winner}", font1, (0, 0, 0), (1280-font1.size(f"Winner: {winner}")[0])/2, 100)
