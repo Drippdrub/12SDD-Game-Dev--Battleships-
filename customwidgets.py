@@ -1,4 +1,23 @@
 import pygame
+import sys
+import os
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+pygame.mixer.init()
+blip = pygame.mixer.Sound(resource_path("sounds\SFX\Blip2.wav"))
+blip.set_volume(0.75)
+
+def changeBlip(volume):
+	blip.set_volume(volume)
 
 #button class
 class Image():
@@ -37,6 +56,7 @@ class Button():
 		self.hovering = False
 
 	def draw(self, surface):
+
 		past_click = self.clicked
 		action = False
 		#get mouse position
@@ -87,6 +107,7 @@ class Toggle():
 		if self.rect.collidepoint(pos):
 			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
 				self.clicked = True
+				pygame.mixer.Sound.play(blip)
 				if self.state == False:
 					self.state = True
 				else:

@@ -1,4 +1,6 @@
 import pygame
+import sys
+import os
 
 # Colors
 WHITE = (255, 255, 255)
@@ -9,7 +11,7 @@ LIGHTGRAY = (175, 175, 175)
 class Slider:
     def __init__(self, x, y, length, *args):
         self.x = x
-        self.y = y
+        self.y = y+20
         self.length = length
         self.slider_width = 40
         try:
@@ -19,21 +21,31 @@ class Slider:
             self.slider_pos = x+length
             self.default = 1
         self.clicked = False
+        self.hover = False
 
     def draw(self, screen):
         size_diff = self.slider_width/5
         pygame.draw.circle(screen, LIGHTGRAY, (self.x, self.y), self.slider_width/2-size_diff)
         pygame.draw.circle(screen, LIGHTGRAY, (self.x+self.length, self.y), self.slider_width/2-size_diff)
         pygame.draw.rect(screen, LIGHTGRAY, (self.x, self.y - self.slider_width/2+size_diff, self.length, self.slider_width-size_diff*2))
-        # pygame.draw.line(screen, WHITE, (self.x-1, self.y-1), (self.x + self.length-1, self.y-1), 2)
         pygame.draw.circle(screen, DARKGRAY, (self.slider_pos, self.y), self.slider_width/2)
+
         value = self.default
-        if pygame.mouse.get_pressed()[0] == 1:
+        mouse_pos = pygame.mouse.get_pos()
+        
+        if pygame.mouse.get_pressed()[0] == 1 and self.hover == True:
             mouse_pos = pygame.mouse.get_pos()
             if self.slider_pos - self.slider_width // 2 <= mouse_pos[0] <= self.slider_pos + self.slider_width // 2 and self.y - self.slider_width // 2 <= mouse_pos[1] <= self.y + self.slider_width // 2:
                 self.set_clicked(True)
         elif pygame.mouse.get_pressed()[0] == 0:
             self.set_clicked(False)
+
+        if pygame.mouse.get_pressed()[0] == 0 and self.slider_pos - self.slider_width // 2 <= mouse_pos[0] <= self.slider_pos + self.slider_width // 2 and self.y - self.slider_width // 2 <= mouse_pos[1] <= self.y + self.slider_width // 2:
+            self.hover = True
+        elif self.clicked == True:
+            self.hover = True
+        else:
+            self.hover = False
 
         if self.clicked:
             mouse_pos = pygame.mouse.get_pos()

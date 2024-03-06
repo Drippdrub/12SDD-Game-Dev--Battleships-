@@ -18,6 +18,7 @@ SCREEN_HEIGHT = 720
 
 pygame.init()
 pygame.display.set_caption("barebones")
+
 org_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),0,32)
 screen = org_screen.copy()
 hud = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32).convert_alpha()
@@ -28,6 +29,9 @@ rightOverlay = pygame.Surface((320, 320)).convert_alpha()
 placementSurface = pygame.Surface((400, 400)).convert_alpha()
 
 clock = pygame.time.Clock()
+
+SONG_FINISHED = pygame.USEREVENT + 1
+pygame.mixer.music.set_endevent(SONG_FINISHED)
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -64,18 +68,26 @@ def shake():
 
 font1 = pygame.font.Font(resource_path("fonts\CompassPro.ttf"), 72)
 font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
+font3 = pygame.font.Font(resource_path("fonts\CompassPro.ttf"), 36)
+font4 = pygame.font.Font(resource_path("fonts\CompassPro.ttf"), 28)
 
 master_lvl = 1.0
 sfx_lvl = 0.75
 music_lvl = 0.75
 
+door_open_sfx = pygame.mixer.Sound(resource_path("sounds\SFX\door open.mp3"))
+door_open_sfx.set_volume(0.75)
+door_close_sfx = pygame.mixer.Sound(resource_path("sounds\SFX\door close.mp3"))
+door_close_sfx.set_volume(0.75)
+
 startup_sfx1 = pygame.mixer.Sound(resource_path("sounds/SFX/Explosion1.wav"))
 startup_sfx1.set_volume(0.75)
 startup_sfx2 = pygame.mixer.Sound(resource_path("sounds\SFX\Blip1.wav"))
 startup_sfx2.set_volume(0.75)
-startup_jingle = pygame.mixer.Sound(resource_path("sounds\Music\weezer.wav"))
-startup_jingle.set_volume(0.9)
-startup_music = pygame.mixer.music.load(resource_path("sounds\\Music\\unending.wav"))
+music_unending = pygame.mixer.music.load(resource_path("sounds/Music/unending.wav"))
+
+blip = pygame.mixer.Sound(resource_path("sounds\SFX\Blip2.wav"))
+blip.set_volume(0.75)
 
 place_sfx1 = pygame.mixer.Sound(resource_path("sounds\SFX\place.wav"))
 place_sfx1.set_volume(0.75)
@@ -114,6 +126,7 @@ creditsButton_hover = pygame.image.load(resource_path("images/button_credits_hov
 exitButton_img = pygame.image.load(resource_path("images/button_exit.png")).convert_alpha()
 exitButton_hover = pygame.image.load(resource_path("images/button_exit_hover.png")).convert_alpha()
 backButton_img = pygame.image.load(resource_path("images/button_back.png")).convert_alpha()
+backButton_hover = pygame.image.load(resource_path("images/button_back_hover.png")).convert_alpha()
 okayButton_img = pygame.image.load(resource_path("images/button_okay.png")).convert_alpha()
 okayButton_hover = pygame.image.load(resource_path("images/button_okay_hover.png")).convert_alpha()
 okayButton_disabled = pygame.image.load(resource_path("images/button_okay_disabled.png")).convert_alpha()
@@ -130,8 +143,16 @@ player1Board_img = pygame.image.load(resource_path("images\Player1 Board.png")).
 player2Board_img = pygame.image.load(resource_path("images\Player2 Board.png")).convert_alpha()
 ai_easy_Board_img = pygame.image.load(resource_path("images\AI Easy Board.png")).convert_alpha()
 ai_hard_Board_img = pygame.image.load(resource_path("images\AI Hard Board.png")).convert_alpha()
+
 middle_Board_img = pygame.image.load(resource_path("images\Middle Board.png")).convert_alpha()
 big_Board_img = pygame.image.load(resource_path("images\Big Board.png")).convert_alpha()
+left_Board_img = pygame.image.load(resource_path("images\Left Board.png")).convert_alpha()
+
+controls_wasd_img = pygame.image.load(resource_path("images\Instructions/WASD.png")).convert_alpha()
+controls_numbers_img = pygame.image.load(resource_path("images\Instructions/Numbers.png")).convert_alpha()
+controls_shift_img = pygame.image.load(resource_path("images\Instructions/Shift.png")).convert_alpha()
+controls_e_img = pygame.image.load(resource_path("images\Instructions/E.png")).convert_alpha()
+controls_f_img = pygame.image.load(resource_path("images\Instructions/F.png")).convert_alpha()
 
 hud_P1P2_img = pygame.image.load(resource_path("images\Huds\Hud1.png")).convert_alpha()
 hug_P2P1_img = pygame.image.load(resource_path("images\Huds\Hud4.png")).convert_alpha()
@@ -139,6 +160,15 @@ hud_P1A1_img = pygame.image.load(resource_path("images\Huds\Hud2.png")).convert_
 hud_P1A2_img = pygame.image.load(resource_path("images\Huds\Hud3.png")).convert_alpha()
 
 ocean_screen = pygame.image.load(resource_path("images/Ocean.png")).convert_alpha()
+metal_screen = pygame.image.load(resource_path("images\metal bg.png")).convert_alpha()
+
+psw_img = pygame.image.load(resource_path("images\PSW.png")).convert_alpha()
+
+mute_img = pygame.image.load(resource_path("images/mute.png")).convert_alpha()
+unmute_img = pygame.image.load(resource_path("images/unmute.png")).convert_alpha()
+
+turn_banner_You = pygame.image.load(resource_path("images/turn banner1.png")).convert_alpha()
+turn_banner_Opp = pygame.image.load(resource_path("images/turn banner2.png")).convert_alpha()
 
 nuke_img = pygame.image.load(resource_path("images/nuke.png")).convert_alpha()
 
@@ -209,6 +239,10 @@ sea_hit_tile2 = pygame.image.load(resource_path("images\isometric tiles\sea hit2
 sea_hit_tile3 = pygame.image.load(resource_path("images\isometric tiles\sea hit3.png")).convert_alpha()
 
 # import grid cell labels
+player1_gridlabel = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Player1.png")).convert_alpha()
+player2_gridlabel = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Player2.png")).convert_alpha()
+computer_gridlabel = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Computer.png")).convert_alpha()
+
 tile_A = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Acell.png")).convert_alpha()
 tile_B = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Bcell.png")).convert_alpha()
 tile_C = pygame.image.load(resource_path("images\isometric tiles\Grid Labels\Ccell.png")).convert_alpha()
@@ -375,7 +409,7 @@ carrier5_sink5 = pygame.image.load(resource_path("images\isometric tiles\Sink An
 
 
 
-game_screen = "main"
+game_screen = "PSW"
 
 BlankGrid = [
     [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 99, 99, 99, 99],
@@ -402,6 +436,7 @@ def switch(screen):
     game_screen = screen
     print(screen)
 
+psw_ticks = 0
 startup_ticks = 0
 
 selectedPlayerMode = True
@@ -427,7 +462,7 @@ cursor_dir = 0
 swap_cd = 0
 bad_cell = False
 stamp_cd = 0
-store_cd = 0
+deselect_cd = 0
 
 P1Rot = []
 P2Rot = []
@@ -492,15 +527,20 @@ exitGame = widgets.Button(640, 625, exitButton_img, 3, exitButton_hover)
 black = widgets.Image(0, 0, black_screen, 4)
 
 # option widgets
-backButton = widgets.Button(75, 75, backButton_img, 2)
-masterVolume = slider.Slider(300, 200, 500, master_lvl)
-musicVolume = slider.Slider(300, 300, 500, music_lvl)
-sfxVolume = slider.Slider(300, 400, 500, sfx_lvl)
+down = 20
+backButton = widgets.Button(150, 100, backButton_img, 2, backButton_hover)
+masterVolume = slider.Slider(500, 250, 500, master_lvl)
+masterMute = widgets.Toggle(400, 250+down, unmute_img, mute_img, 1.25)
+musicVolume = slider.Slider(500, 375, 500, music_lvl)
+musicMute = widgets.Toggle(400, 375+down, unmute_img, mute_img, 1.25)
+sfxVolume = slider.Slider(500, 500, 500, sfx_lvl)
+sfxMute = widgets.Toggle(400, 500+down, unmute_img, mute_img, 1.25)
 
 # game options widgets
 selectPlayer = widgets.Toggle(640, 300, select1P_img, select2P_img, 1.2)
 selectDiff = widgets.Toggle(640, 430, selectDiffEasy_img, selectDiffHard_img, 0.7)
-gameOptionsProceed = widgets.Button(640, 570, playButton_img, 3, playButton_hover)
+gameOptionsProceed = widgets.Button(640, 550, playButton_img, 3, playButton_hover)
+backButton2 = widgets.Button(640, 625, backButton_img, 1.5, backButton_hover)
 
 player1Board = widgets.Image(200, 360, player1Board_img, 1)
 player2Board = widgets.Image(1080, 360, player2Board_img, 1)
@@ -514,19 +554,22 @@ promptProceed = widgets.Button(640, 420, okayButton_img, 3, okayButton_hover)
 gameBegin = widgets.Button(640, 420, playButton_img, 3, playButton_hover)
 
 # boat placement widgets
-destroyer_indicator_P = widgets.Image(200, 100, lbl_destroyer_placed, 1)
-destroyer_indicator_S = widgets.Image(200, 100, lbl_destroyer_stored, 1)
-sub_indicator_S = widgets.Image(200, 200, lbl_sub_stored, 1)
-sub_indicator_P = widgets.Image(200, 200, lbl_sub_placed, 1)
-cruiser_indicator_S = widgets.Image(200, 300, lbl_cruiser_stored, 1)
-cruiser_indicator_P = widgets.Image(200, 300, lbl_cruiser_placed, 1)
-battleship_indicator_S = widgets.Image(200, 400, lbl_battleship_stored, 1)
-battleship_indicator_P = widgets.Image(200, 400, lbl_battleship_placed, 1)
-carrier_indicator_S = widgets.Image(200, 500, lbl_carrier_stored, 1)
-carrier_indicator_P = widgets.Image(200, 500, lbl_carrier_placed, 1)
+destroyer_indicator_P = widgets.Image(250, 75, lbl_destroyer_placed, 0.9)
+destroyer_indicator_S = widgets.Image(250, 75, lbl_destroyer_stored, 0.9)
+sub_indicator_S = widgets.Image(250, 125, lbl_sub_stored, 0.9)
+sub_indicator_P = widgets.Image(250, 125, lbl_sub_placed, 0.9)
+cruiser_indicator_S = widgets.Image(250, 175, lbl_cruiser_stored, 0.9)
+cruiser_indicator_P = widgets.Image(250, 175, lbl_cruiser_placed, 0.9)
+battleship_indicator_S = widgets.Image(250, 225, lbl_battleship_stored, 0.9)
+battleship_indicator_P = widgets.Image(250, 225, lbl_battleship_placed, 0.9)
+carrier_indicator_S = widgets.Image(250, 275, lbl_carrier_stored, 0.9)
+carrier_indicator_P = widgets.Image(250, 275, lbl_carrier_placed, 0.9)
 
 confirmFleet_button = widgets.Button(1050, 650, confirmFleet_img, 3, confirmFleet_hover)
 randomiseFleet_button = widgets.Button(600, 650, randomiseFleet_img, 3, randomiseFleet_hover)
+
+gameSongs = ["sounds/Music/Blackmoor Tides.mp3", "sounds/Music/Enemy Ship Approaching.ogg"]
+menuSongs = ["sounds/Music/restless sea.wav", "sounds/Music/unending.wav"]
 
 scroll = 0
 running = True
@@ -548,8 +591,24 @@ while running:
         # pygame.QUIT event means the user clicked X to close your window
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == SONG_FINISHED:
+            if inGame == True:
+                pygame.mixer.music.load(random.choice(gameSongs))
+            else:
+                pygame.mixer.music.load(random.choice(menuSongs))
+            pygame.mixer.music.play()
 
-    if game_screen == "main":
+    if game_screen == "PSW":
+        screen.blit(pygame.transform.scale(psw_img, (1280, 720)), (0, 0))
+        if psw_ticks in range (200, 400):
+            black.draw(screen, 1.25*(psw_ticks-200))
+
+        psw_ticks += 1
+
+        if psw_ticks == 400:
+            switch("main")
+
+    elif game_screen == "main":
         scale = 1
         bg_tile = math.ceil(SCREEN_WIDTH/(1280*scale))+1
         if startup_ticks in range(0, 240):
@@ -563,7 +622,7 @@ while running:
         if abs(scroll) > 1280:
             scroll = 0
 
-        delay = 75
+        delay = 130
         if startup_ticks in range(0, delay+30):
             f = 2
             if (startup_ticks-delay) // f <= f*0:
@@ -589,21 +648,22 @@ while running:
             black.draw(screen, 250-2.5*startup_ticks)
 
         if startup_ticks == 1:
-            # pygame.mixer.Sound.play(startup_jingle)
             pygame.mixer.music.play()
+        
+        if startup_ticks == 20:
+            pygame.mixer.Sound.play(door_open_sfx)
 
-        delay = 200
+        delay = 217
         duration = 40
         if delay < startup_ticks < delay+duration:
             font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), (84+((delay+duration-startup_ticks)*6)))
-        elif startup_ticks == delay+duration:
+        else:
             font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
+        if startup_ticks == delay+duration:
             pygame.mixer.Sound.play(startup_sfx1)
-        elif startup_ticks > delay+duration:
-            font2 = pygame.font.Font(resource_path("fonts\Crang.ttf"), 84)
         
         if startup_ticks > delay:
-            draw_text("Battleships", font2, (0, 0, 0), (1280-font2.size("Battleships")[0])/2, 50)
+            draw_text("Steel and Salvos", font2, (0, 0, 0), (1280-font2.size("Steel and Salvos")[0])/2, 50)
         
         
 
@@ -613,24 +673,28 @@ while running:
             pygame.mixer.Sound.play(startup_sfx2)
         if startup_ticks >= delay+pause+duration+interval:
              if playGame.draw(screen):
+                 pygame.mixer.Sound.play(blip)
                  switch("game options")
         
         if startup_ticks == delay+pause+duration+interval*2:
             pygame.mixer.Sound.play(startup_sfx2)
         if startup_ticks >= delay+pause+duration+interval*2:
             if optionsButton.draw(screen):
+                pygame.mixer.Sound.play(blip)
                 switch("options")
 
         if startup_ticks == delay+pause+duration+interval*3:
             pygame.mixer.Sound.play(startup_sfx2)
         if startup_ticks >= delay+pause+duration+interval*3:
             if openCredits.draw(screen):
+                pygame.mixer.Sound.play(blip)
                 switch("credits")
 
         if startup_ticks == delay+pause+duration+interval*4:
             pygame.mixer.Sound.play(startup_sfx2)
         if startup_ticks >= delay+pause+duration+interval*4:
             if exitGame.draw(screen):
+                pygame.mixer.Sound.play(blip)
                 if messagebox.askokcancel("Close Game?", "You are about to leave the game. Continue?"):
                     running = False
 
@@ -640,14 +704,40 @@ while running:
         screen.blit(pygame.transform.scale(ocean_screen, (1280*scale, 720*scale)), (0, 0))
         screen.blit(big_Board_img, (0, 0))
 
+        draw_text("Sound Options", font1, (0, 0, 0), (1280-font1.size("Sound Options")[0])/2, 50)
+
         if backButton.draw(hud):
+            pygame.mixer.Sound.play(blip)
             switch("main")
+        
+        draw_text("Master Volume", font3, (0, 0, 0), 100, 250)
+        master_lvl = round(masterVolume.draw(hud), 2)
+        draw_text(f"{master_lvl}", font3, (0, 0, 0), 1050, 250)
+        if masterMute.draw(hud) == True:
+            master_lvl = 0
 
-        master_lvl = masterVolume.draw(hud)
 
-        sfx_lvl = sfxVolume.draw(hud)
+        draw_text("Music Volume", font3, (0, 0, 0), 100, 375)
+        music_lvl = round(musicVolume.draw(hud), 2)
+        draw_text(f"{music_lvl}", font3, (0, 0, 0), 1050, 375)
+        if musicMute.draw(hud) == True:
+            music_lvl = 0
+
+        pygame.mixer.music.set_volume(music_lvl*master_lvl)
+
+
+        draw_text("SFX Volume", font3, (0, 0, 0), 100, 500)
+        sfx_lvl = round(sfxVolume.draw(hud), 2)
+        draw_text(f"{sfx_lvl}", font3, (0, 0, 0), 1050, 500)
+        if sfxMute.draw(hud) == True:
+            sfx_lvl = 0
+
+        door_open_sfx.set_volume(0.75)
+        door_close_sfx.set_volume(0.75)
         startup_sfx1.set_volume(sfx_lvl*master_lvl)
         startup_sfx2.set_volume(sfx_lvl*master_lvl)
+        blip.set_volume(sfx_lvl*master_lvl)
+        widgets.changeBlip(sfx_lvl*master_lvl)
         place_sfx1.set_volume(sfx_lvl*master_lvl)
         denyClick_sfx1.set_volume(sfx_lvl*master_lvl)
         explosion_sfx1.set_volume(sfx_lvl*master_lvl)
@@ -660,11 +750,12 @@ while running:
         splash_sfx4.set_volume(sfx_lvl*master_lvl)
         splash_sfx5.set_volume(sfx_lvl*master_lvl)
 
-        music_lvl = musicVolume.draw(hud)
-        pygame.mixer.music.set_volume(music_lvl*master_lvl)
-
     elif game_screen == "credits":
+        screen.blit(pygame.transform.scale(ocean_screen, (1280*scale, 720*scale)), (0, 0))
+        screen.blit(big_Board_img, (0, 0))
+
         if backButton.draw(hud):
+            pygame.mixer.Sound.play(blip)
             switch("main")
 
     elif game_screen == "game options":
@@ -685,7 +776,11 @@ while running:
         player1Board.draw(hud)
         if gameOptionsProceed.draw(hud):
             winner = "undecided"
+            pygame.mixer.Sound.play(blip)
             switch("page router")
+        if backButton2.draw(hud):
+            pygame.mixer.Sound.play(blip)
+            switch("main")
     
     elif game_screen == "page router":
         if inGame == False: #if not in game i.e. setting up new game
@@ -699,7 +794,7 @@ while running:
             swap_cd = 0
             bad_cell = False
             stamp_cd = 0
-            store_cd = 0
+            deselect_cd = 0
             StoredBoats = [1, 1, 1, 1, 1]
             # reset vars for prompt screens
             prompt_cd = 60
@@ -731,7 +826,13 @@ while running:
         else: #if currently in game
             if turn != 0:
                 if P1Boats_sunk == [1, 1, 1, 1, 1]:
-                    winner = "Player 2"
+                    if selectedPlayerMode == False:
+                        if difficulty == "Easy":
+                            winner = "AI (Easy)"
+                        else:
+                            winner = "AI (Hard)"
+                    else:
+                        winner = "Player 2"
                 if P2Boats_sunk == [1, 1, 1, 1, 1]:
                     winner = "Player 1"
 
@@ -741,6 +842,7 @@ while running:
             nuke_anim = False
             nuke_anim2 = False
             nuke_ticks = 0
+            nuke_ticks2 = False
             if winner == "undecided":
                 if turn == 1: #on first turn
                     pygame.mixer.music.stop()
@@ -754,9 +856,12 @@ while running:
                     sink_anim_ticks = 0
                     P1Boats_sunk = [0, 0, 0, 0, 0]
                     P2Boats_sunk = [0, 0, 0, 0, 0]
+                    P1Boats_sunk_anim = [0, 0, 0, 0, 0]
+                    P2Boats_sunk_anim = [0, 0, 0, 0, 0]
                     x = 0
                     y = 0
                     target_cell = pygame.Vector2(0,0)
+                    target_cell2 = pygame.Vector2(0,0)
                     locked_on_ship = False
                     uncleared_cells = []
                     switch("P1Game")
@@ -780,13 +885,14 @@ while running:
                 door_anim = True
                 switch("win")
     
-    elif game_screen == "P1Prompt":
+    if game_screen == "P1Prompt":
         if selectedPlayerMode == False:
             draw_text("Place down your ships", font1, (0, 0, 0), (1280-font1.size("Place down your ships")[0])/2, 100)
         else:
             draw_text("Pass this device to Player 1", font1, (0, 0, 0), (1280-font1.size("Pass this device to Player 1")[0])/2, 100)
         if prompt_cd <= 0:
             if promptProceed.draw(hud):
+                pygame.mixer.Sound.play(blip)
                 switch("boat placing")
         else:
             promptDisabled.draw(hud)
@@ -796,6 +902,7 @@ while running:
         draw_text("Pass this device to Player 2", font1, (0, 0, 0), (1280-font1.size("Pass this device to Player 2")[0])/2, 100)
         if prompt_cd <= 0:
             if promptProceed.draw(hud):
+                pygame.mixer.Sound.play(blip)
                 switch("boat placing")
         else:
             promptDisabled.draw(hud)
@@ -833,10 +940,31 @@ while running:
     elif game_screen == "AIReady":
         draw_text("Start Game", font1, (0, 0, 0), (1280-font1.size("Start Game")[0])/2, 100)
         if gameBegin.draw(hud):
+            pygame.mixer.Sound.play(blip)
             inGame = True
             switch("page router")
 
     elif game_screen == "boat placing":
+        screen.blit(metal_screen, (0, 0))
+        hud.blit(left_Board_img, (0, 0))
+
+        control_text = [
+            "- Select Ships",
+            "- Move Cursor",
+            "- Move Quicker",
+            "- Place Down Ship",
+            "- Store Ship"
+        ]
+
+        k = 0
+        for icon in [controls_numbers_img, controls_wasd_img, controls_shift_img, controls_e_img, controls_f_img]:
+            if k == 1:
+                hud.blit(pygame.transform.scale_by(icon, (1.5, 1.5)), (50, 363))
+            else:
+                hud.blit(pygame.transform.scale_by(icon, (1.5, 1.5)), (50, 325+50*k))
+            draw_text(f"{control_text[k]}", font4, (0, 0, 0), 175, 318+50*k)
+            k += 1
+
         xdil = 16
         ydil = 8
         # render grid labels
@@ -958,32 +1086,11 @@ while running:
                         selected_cell.x += 1
                         mov_cd = 10
                 
-                if store_cd <= 0 and keys[pygame.K_f]:
-                    for i, line in enumerate(PlacingGrid):
-                        for j, cell in enumerate(line):
-                            if selected_boat == 0:
-                                if PlacingGrid[j][i] in [10, 11]:
-                                    PlacingGrid[j][i] = 00
-                            if selected_boat == 1:
-                                if PlacingGrid[j][i] in [20, 21, 22]:
-                                    PlacingGrid[j][i] = 00
-                            if selected_boat == 2:
-                                if PlacingGrid[j][i] in [30, 31, 32]:
-                                    PlacingGrid[j][i] = 00
-                            if selected_boat == 3:
-                                if PlacingGrid[j][i] == [40, 41, 42, 43]:
-                                    PlacingGrid[j][i] = 00
-                            if selected_boat == 4:
-                                if PlacingGrid[j][i] == [50, 51, 52, 53, 54]:
-                                    PlacingGrid[j][i] = 00
-                            if selected_boat == 5:
-                                pass
-                    if selected_boat != 5:
-                        StoredBoats[selected_boat] = 1
-                        selected_boat = 5
-                        selected_cell = pygame.Vector2(10, 10)
-                        cur_boat_len = boat_len[selected_boat]
-                        store_cd = 15
+                if deselect_cd <= 0 and keys[pygame.K_f]:
+                    selected_boat = 5
+                    selected_cell = pygame.Vector2(10, 10)
+                    cur_boat_len = boat_len[selected_boat]
+                    deselect_cd = 15
                             
                 
                 if rot_cd <= 0 and keys[pygame.K_r]:
@@ -1148,7 +1255,7 @@ while running:
         rot_cd -= 1
         swap_cd -= 1
         stamp_cd -= 1
-        store_cd -= 1
+        deselect_cd -= 1
 
         for i in range(len(StoredBoats)):
             j = i * 2 + StoredBoats[i]
@@ -1167,6 +1274,7 @@ while running:
             drawn_label.draw(hud)
 
         if randomiseFleet_button.draw(hud):
+            pygame.mixer.Sound.play(blip)
             boat_count = 6
             PlacingGrid = copy.deepcopy(BlankGrid)
             for boat in [5, 4, 3, 3, 2]:
@@ -1200,11 +1308,12 @@ while running:
                 swap_cd = 0
                 bad_cell = False
                 stamp_cd = 0
-                store_cd = 0
+                deselect_cd = 0
                 StoredBoats = [0, 0, 0, 0, 0]
 
         if confirmFleet_button.draw(hud):
             if StoredBoats == [0, 0, 0, 0, 0]:
+                pygame.mixer.Sound.play(blip)
                 if messagebox.askokcancel("Confirm Boat Placement", "Your boats will be locked in place for the rest of the game.\nDo you wish to continue?"):
                     switch("page router")
             else:
@@ -1213,10 +1322,13 @@ while running:
     elif game_screen == "GameReady":
         draw_text("Start Game", font1, (0, 0, 0), (1280-font1.size("Start Game")[0])/2, 100)
         if gameBegin.draw(hud):
+            pygame.mixer.Sound.play(blip)
             inGame = True
             switch("page router")
 
     elif game_screen == "AI Turn":
+        screen.blit(metal_screen, (0, 0))
+
         funcs: dict = {00: d_sea_tile,
                             10: destroyer2_tile,
                             11: destroyer1_tile,
@@ -1239,6 +1351,12 @@ while running:
                             }
 
         mov_cd -= 1
+
+        if selectedPlayerMode == False:
+            leftRender.blit(computer_gridlabel, (160, 40))
+        else:
+            leftRender.blit(player2_gridlabel, (160, 40))
+        rightRender.blit(player1_gridlabel, (160, 40))
 
         # left render
         for y, row in enumerate(P2Boats):
@@ -1363,17 +1481,21 @@ while running:
                     rightRender.blit(tile_sprite, (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
                 else:
                     rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
-
+            
+        if selectedPlayerMode == False:
+            if difficulty == "Easy":
+                hud.blit(hud_P1A1_img, (0, 0))
+            else:
+                hud.blit(hud_P1A2_img, (0, 0))
+        else:
+            hud.blit(hud_P1P2_img, (0, 0))
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_e]:
-            anim_ticks = 0
-
-        t = 30
+        t = 60
         scale = 10
-        diff = 1.5
-        delay = 90
+        diff = 45/t
+        delay = 30
         if anim_ticks <= delay:
             left_size = screen.get_width()/2 + scale*(1 + (0.5*t)*diff)
             right_size = screen.get_width()/2 + scale*(1 - (0.5*t)*diff)
@@ -1670,6 +1792,8 @@ while running:
 
     elif game_screen == "P1Game":
 
+        screen.blit(metal_screen, (0, 0))
+
         funcs: dict = {00: d_sea_tile,
                             10: destroyer2_tile,
                             11: destroyer1_tile,
@@ -1707,6 +1831,12 @@ while running:
                 mov_cd = 10
 
         mov_cd -= 1
+
+        if selectedPlayerMode == False:
+            leftRender.blit(computer_gridlabel, (160, 40))
+        else:
+            leftRender.blit(player2_gridlabel, (160, 40))
+        rightRender.blit(player1_gridlabel, (160, 40))
 
         # left render
         for y, row in enumerate(P2Boats):
@@ -2086,9 +2216,9 @@ while running:
                             58: carrier2_sink5,
                             59: carrier1_sink5
                         }
-                        if (P1Boats_sunk[0] == 1 and tile in [15, 16]) or (P1Boats_sunk[1] == 1 and tile in [25, 26, 27])\
+                        if ((P1Boats_sunk[0] == 1 and tile in [15, 16]) or (P1Boats_sunk[1] == 1 and tile in [25, 26, 27])\
                             or (P1Boats_sunk[2] == 1 and tile in [35, 36, 37]) or (P1Boats_sunk[3] == 1 and tile in [45, 46, 47, 48])\
-                            or (P1Boats_sunk[4] == 1 and tile in [55, 56, 57, 58, 59]):
+                            or (P1Boats_sunk[4] == 1 and tile in [55, 56, 57, 58, 59])) and Prev_action == []:
                             tile_sprite = hit_tiles.get(tile, d_sea_hit_tile)
                 else:
                     tile_sprite = funcs.get(tile, funcs.get(tile-5, "blank"))
@@ -2102,37 +2232,121 @@ while running:
 
 
         keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_e]:
-            anim_ticks = 0
-
-        t = 30
+        
+        t = 60
         scale = 10
-        diff = 1.5
-        delay = 90
+        diff = 45/t
+        if nuke_anim2 == False:
+            delay = 110
+        else:
+            delay = 90
         if anim_ticks <= delay:
+            if turn != 1 and nuke_anim2 == False:
+                hud.blit(turn_banner_Opp, (0, 0))
             left_size = screen.get_width()/2 + scale*(1 - (0.5*t)*diff)
             right_size = screen.get_width()/2 + scale*(1 + (0.5*t)*diff)
             left_pos = pygame.Vector2(55, 50-(left_size*0.13))
             right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
             anim_ticks += 1*dbltime
             if nuke_anim2 == True:
+                j = int(target_cell.y)
+                i = int(target_cell.x)
                 if anim_ticks <= 30:
-                    i = target_cell.x
-                    j = target_cell.y
                     rightOverlay.blit(pygame.transform.scale_by(nuke_img, (0.4, 0.4)), (144+i*xdil-j*xdil+2, (37+i*ydil+j*ydil) - 5*(30-anim_ticks)))
+                if P1Boats[j][i] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                    if anim_ticks == 31:
+                        sound_list = [
+                            explosion_sfx1, explosion_sfx2, explosion_sfx3, explosion_sfx4
+                        ]
+                        pygame.mixer.Sound.play(sound_list[random.randint(0, 3)])
+                    if anim_ticks in range(31, 78):
+                        if anim_ticks in range(31, 33):
+                            explosion_img = explosion_frame_1
+                        elif anim_ticks in range(33, 35):
+                            explosion_img = explosion_frame_2
+                        elif anim_ticks in range(35, 37):
+                            explosion_img = explosion_frame_3
+                        elif anim_ticks in range(37, 41):
+                            explosion_img = explosion_frame_4
+                        elif anim_ticks in range(41, 45):
+                            explosion_img = explosion_frame_5
+                        elif anim_ticks in range(45, 49):
+                            explosion_img = explosion_frame_6
+                        elif anim_ticks in range(53, 57):
+                            explosion_img = explosion_frame_7
+                        elif anim_ticks in range(57, 61):
+                            explosion_img = explosion_frame_8
+                        elif anim_ticks in range(61, 65):
+                            explosion_img = explosion_frame_9
+                        elif anim_ticks in range(65, 69):
+                            explosion_img = explosion_frame_10
+                        elif anim_ticks in range(69, 73):
+                            explosion_img = explosion_frame_11
+                        elif anim_ticks in range(73, 77):
+                            explosion_img = explosion_frame_12
+                        rightOverlay.blit(pygame.transform.scale_by(explosion_img, (1, 1)), (126+i*xdil-j*xdil+2, 37+i*ydil+j*ydil))
+                else:
+                    if anim_ticks == 31:
+                        sound_list = [
+                            splash_sfx1, splash_sfx2, splash_sfx3, splash_sfx4, splash_sfx5
+                        ]
+                        pygame.mixer.Sound.play(sound_list[random.randint(0, 4)])
+                    if anim_ticks in range(31, 68):
+                        if anim_ticks in range(31, 34):
+                            splash_img = splash_frame_1
+                        elif anim_ticks in range(34, 37):
+                            splash_img = splash_frame_2
+                        elif anim_ticks in range(37, 40):
+                            splash_img = splash_frame_3
+                        elif anim_ticks in range(40, 43):
+                            splash_img = splash_frame_4
+                        elif anim_ticks in range(43, 46):
+                            splash_img = splash_frame_5
+                        elif anim_ticks in range(46, 49):
+                            splash_img = splash_frame_6
+                        elif anim_ticks in range(49, 52):
+                            splash_img = splash_frame_7
+                        elif anim_ticks in range(52, 55):
+                            splash_img = splash_frame_8
+                        elif anim_ticks in range(55, 58):
+                            splash_img = splash_frame_9
+                        elif anim_ticks in range(58, 61):
+                            splash_img = splash_frame_10
+                        elif anim_ticks in range(61, 64):
+                            splash_img = splash_frame_11
+                        elif anim_ticks in range(64, 67):
+                            splash_img = splash_frame_12
+                        rightOverlay.blit(pygame.transform.scale_by(splash_img, (0.75, 0.75)), (134+i*xdil-j*xdil+2, 37+i*ydil+j*ydil))
+
+                if any(15 in sl for sl in P2Boats) and any(16 in sl for sl in P2Boats) and P2Boats_sunk[0] == 0:
+                    destroyer_sink_anim = True
+                    P2Boats_sunk[0] = 1
+                elif any(25 in sl for sl in P2Boats) and any(26 in sl for sl in P2Boats) and any(27 in sl for sl in P2Boats) and P2Boats_sunk[1] == 0:
+                    submarine_sink_anim = True
+                    P2Boats_sunk[1] = 1
+                elif any(35 in sl for sl in P2Boats) and any(36 in sl for sl in P2Boats) and any(37 in sl for sl in P2Boats) and P2Boats_sunk[2] == 0:
+                    cruiser_sink_anim = True
+                    P2Boats_sunk[2] = 1
+                elif any(45 in sl for sl in P2Boats) and any(46 in sl for sl in P2Boats) and any(47 in sl for sl in P2Boats) and any(48 in sl for sl in P2Boats) and P2Boats_sunk[3] == 0:
+                    battleship_sink_anim = True
+                    P2Boats_sunk[3] = 1
+                elif any(55 in sl for sl in P2Boats) and any(56 in sl for sl in P2Boats) and any(57 in sl for sl in P2Boats) and any(58 in sl for sl in P2Boats) and any(59 in sl for sl in P2Boats) and P2Boats_sunk[4] == 0:
+                    carrier_sink_anim = True
+                    P2Boats_sunk[4] = 1
             elif selectedPlayerMode == False and door_anim == False and P1Boats_sunk == [1, 1, 1, 1, 1] and Prev_action == []:
                     door_anim = True
                     door_ticks = 0
         elif delay < anim_ticks <= delay + t:
+            if Prev_action != [] and nuke_anim2 == True:
+                Prev_action.pop(0)
             if Prev_action != []:
                 x = int(Prev_action[0] % 10)
                 y = int((Prev_action[0]-x)/10)
                 target_cell = pygame.Vector2(x, y)
-                Prev_action.pop(0)
                 nuke_anim2 = True
                 anim_ticks = 0
             else:
+                hud.blit(turn_banner_You, (0, 0))
                 nuke_anim2 = False
                 left_size = screen.get_width()/2 + scale*(1 - (0.5*t - (anim_ticks - delay))*diff)
                 right_size = screen.get_width()/2 + scale*(1 + (0.5*t - (anim_ticks - delay))*diff)
@@ -2319,24 +2533,29 @@ while running:
         if door_anim == True:
             
             f = 2
-            if door_ticks // f <= f*0:
+            delay = 10
+            if (door_ticks-delay) // f == f*0:
                 switch_door = widgets.Image(640, 360, blast_door_8, 1)
-            elif door_ticks // f == f*1:
+            elif (door_ticks-delay) // f == f*1:
                 switch_door = widgets.Image(640, 360, blast_door_7, 1)
-            elif door_ticks // f == f*2:
+            elif (door_ticks-delay) // f == f*2:
                 switch_door = widgets.Image(640, 360, blast_door_6, 1)
-            elif door_ticks // f == f*3:
+            elif (door_ticks-delay) // f == f*3:
                 switch_door = widgets.Image(640, 360, blast_door_5, 1)
-            elif door_ticks // f == f*4:
+            elif (door_ticks-delay) // f == f*4:
                 switch_door = widgets.Image(640, 360, blast_door_4, 1)
-            elif door_ticks// f == f*5:
+            elif (door_ticks-delay)// f == f*5:
                 switch_door = widgets.Image(640, 360, blast_door_3, 1)
-            elif door_ticks // f == f*6:
+            elif (door_ticks-delay) // f == f*6:
                 switch_door = widgets.Image(640, 360, blast_door_2, 1)
-            elif door_ticks // f == f*7:
+            elif (door_ticks-delay) // f == f*7:
                 switch_door = widgets.Image(640, 360, blast_door_1, 1)
             
-            switch_door.draw(hud)
+            if door_ticks > delay:
+                switch_door.draw(hud)
+
+            if door_ticks == 1:
+                pygame.mixer.Sound.play(door_close_sfx)
 
             if door_ticks > 30:
                 door_anim = False
@@ -2345,7 +2564,8 @@ while running:
             door_ticks += 1
     
     elif game_screen == "win":
-        draw_text(f"Winner: {winner}", font1, (0, 0, 0), (1280-font1.size(f"Winner: {winner}")[0])/2, 100)
+        if selectedPlayerMode == False:
+            draw_text(f"Winner: {winner}", font1, (0, 0, 0), (1280-font1.size(f"Winner: {winner}")[0])/2, 100)
         if door_anim == True:
             f = 2
             if door_ticks // f <= f*0:
@@ -2395,8 +2615,9 @@ while running:
     
     sea_anim_cd -= 1
     
-    dt = clock.tick(60) / 1000
-    screen.blit(pygame.transform.scale(placementSurface, (screen.get_width()/1.4, screen.get_width()/1.4)), (380, 50))
+    if game_screen != "page router":
+        dt = clock.tick(60) / 1000
+    screen.blit(pygame.transform.scale(placementSurface, (screen.get_width()/1.5, screen.get_width()/1.5)), (440, 50))
     screen.blit(pygame.transform.scale(leftRender, (left_size, left_size)), left_pos)
     screen.blit(pygame.transform.scale(leftOverlay, (left_size, left_size)), (55, 0))
     screen.blit(pygame.transform.scale(rightRender, (right_size, right_size)), right_pos)
