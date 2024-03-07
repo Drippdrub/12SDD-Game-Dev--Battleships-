@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 
+# pyinstaller compatability
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -12,36 +13,47 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+# init pygame + button sound
 pygame.mixer.init()
 blip = pygame.mixer.Sound(resource_path("sounds\SFX\Blip2.wav"))
 blip.set_volume(0.75)
 
+# change button volume
 def changeBlip(volume):
 	blip.set_volume(volume)
 
-#button class
+#Image Object
 class Image():
+	# Initialise image object + object vars
 	def __init__(self, x, y, image, scale, *args):
+		#get coordinates
 		width = image.get_width()
 		height = image.get_height()
+		#set image
 		self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+		#set hitbox
 		self.rect = self.image.get_rect()
-		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2))
+		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2)) #coordinates corespond to center of image
 	
+	# Draw Image on screen
 	def draw(self, surface, *args):
-		alpha = 255
+		alpha = 255 #default alpha, full opacity
 		try:
-			alpha = args[0]
+			alpha = args[0] #if alpha value is passed, then set alpha to that
 		except:
-			pass
-		self.image.set_alpha(alpha)
-		surface.blit(self.image, (self.rect.x, self.rect.y))
+			pass #if no alpha value passed, ignore
+		self.image.set_alpha(alpha) #set alpha value
+		surface.blit(self.image, (self.rect.x, self.rect.y)) #blit image to screen
 
 class Button():
+	# Initialise button object + object vars
 	def __init__(self, x, y, image, scale, *args):
+		#get coordinates
 		width = image.get_width()
 		height = image.get_height()
+		#set image
 		self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+		#set click image if a second image has been passed
 		self.toggle_click = False
 		try:
 			click = args[0]
@@ -50,14 +62,18 @@ class Button():
 		if click:
 			self.toggle_click = True
 			self.click = pygame.transform.scale(args[0], (int(width * scale), int(height * scale)))
+		#set hitbox
 		self.rect = self.image.get_rect()
 		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2))
+		#initialise button states
 		self.clicked = False
 		self.hovering = False
 
+	# Draw Button on screen and retrieve button states
 	def draw(self, surface):
-
+		# save past click state
 		past_click = self.clicked
+		#initialise return value
 		action = False
 		#get mouse position
 		pos = pygame.mouse.get_pos()
