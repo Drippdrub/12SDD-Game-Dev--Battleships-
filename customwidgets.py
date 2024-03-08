@@ -25,7 +25,7 @@ def changeBlip(volume):
 #Image Object
 class Image():
 	# Initialise image object + object vars
-	def __init__(self, x, y, image, scale, *args):
+	def __init__(self, x, y, image, scale, tiptext=""):
 		#get coordinates
 		width = image.get_width()
 		height = image.get_height()
@@ -34,6 +34,8 @@ class Image():
 		#set hitbox
 		self.rect = self.image.get_rect()
 		self.rect.topleft = ((x-width*scale/2), (y-height*scale/2)) #coordinates corespond to center of image
+		self.buttonf = pygame.font.SysFont(resource_path("fonts\CompassPro.ttf"), 18)
+		self.tiptextsurface = self.buttonf.render(tiptext, False, (0, 0, 0), (255, 255, 0))
 	
 	# Draw Image on screen
 	def draw(self, surface, *args):
@@ -44,6 +46,15 @@ class Image():
 			pass #if no alpha value passed, ignore
 		self.image.set_alpha(alpha) #set alpha value
 		surface.blit(self.image, (self.rect.x, self.rect.y)) #blit image to screen
+
+	def showTip(self, surface):
+		if self.current:
+			mouse_pos = pygame.mouse.get_pos()
+			surface.blit(self.tiptextsurface, (mouse_pos[0]+16, mouse_pos[1]))
+
+	def focusCheck(self, mousepos, mouseclick):
+		self.current = self.rect.collidepoint(mousepos)
+		return mouseclick if self.current else True
 
 class Button():
 	# Initialise button object + object vars
@@ -59,7 +70,8 @@ class Button():
 			click = args[0]
 		except:
 			click = None
-		if click:
+			self.click = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+		if click != None:
 			self.toggle_click = True
 			self.click = pygame.transform.scale(args[0], (int(width * scale), int(height * scale)))
 		#set hitbox
@@ -70,7 +82,7 @@ class Button():
 		self.hovering = False
 
 	# Draw Button on screen and retrieve button states
-	def draw(self, surface):
+	def draw(self, surface, alpha=255):
 		# save past click state
 		past_click = self.clicked
 		#initialise return value
@@ -92,12 +104,17 @@ class Button():
 		if past_click == True and self.rect.collidepoint(pos) and self.clicked == False:
 			action = True
 
+		self.image.set_alpha(alpha)
+		self.click.set_alpha(alpha)
+
 		#draw button on screen
 		if self.hovering:
 			if self.clicked == False:
 				surface.blit(pygame.transform.scale_by(self.image, (1.1, 1.1)), (self.rect.x-self.image.get_width()*0.05, self.rect.y-self.image.get_height()*0.05))
 			elif self.toggle_click == True:
 				surface.blit(pygame.transform.scale_by(self.click, (1.1, 1.1)), (self.rect.x-self.image.get_width()*0.05, self.rect.y-self.image.get_height()*0.05))
+			else:
+				surface.blit(pygame.transform.scale_by(self.image, (1.1, 1.1)), (self.rect.x-self.image.get_width()*0.05, self.rect.y-self.image.get_height()*0.05))
 		else:
 			surface.blit(self.image, (self.rect.x, self.rect.y))
 

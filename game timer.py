@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 # Initialise Pygame
 pygame.init()
@@ -9,10 +10,20 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game Timer")
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # Fonts
-font = pygame.font.Font("fonts/Crang.ttf", 36)  
+font = pygame.font.Font(resource_path("fonts/Crang.ttf"), 36)  
 # Load the font with a specific size
-timer_font = pygame.font.Font("fonts/Crang.ttf", 72)  
+timer_font = pygame.font.Font(resource_path("fonts/Crang.ttf"), 72)  
 # Font for the timer
 
 # Colors
