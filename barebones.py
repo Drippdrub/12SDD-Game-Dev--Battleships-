@@ -17,12 +17,25 @@ Tk().wm_withdraw() #hide Tkinter main window, only messagebox is needed
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
+# used for pyinstaller compatability
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # initialise pygame
 pygame.init()
 # randomised window caption
 captions = [": Sinking Hopes and Dreams", ": Battleships? What's that?", ": Water Warfare",
             " 2: Electric Boogaloo", " 3: Revenge of the Sith", ""]
 pygame.display.set_caption(f"Steel and Salvos{random.choice(captions)}")
+programIcon = pygame.image.load(resource_path('images/Icon.png'))
+pygame.display.set_icon(programIcon)
 
 # set surfaces
 org_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),0,32) #parent screen
@@ -39,17 +52,6 @@ clock = pygame.time.Clock() #clock object
 # event to detect when music has stopped playing
 SONG_FINISHED = pygame.USEREVENT + 1
 pygame.mixer.music.set_endevent(SONG_FINISHED)
-
-# used for pyinstaller compatability
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 # draw text to screen
 def draw_text(text, font, text_colour, x, y):
@@ -221,6 +223,9 @@ metal_screen = pygame.image.load(resource_path("images\metal bg.png")).convert_a
 
 # photosensitive seizure warning screen
 psw_img = pygame.image.load(resource_path("images\PSW.png")).convert_alpha()
+
+# credits screen
+credits_img = pygame.image.load(resource_path("images/Credits.png"))
 
 # mute/unmute button
 mute_img = pygame.image.load(resource_path("images/mute.png")).convert_alpha()
@@ -496,10 +501,12 @@ BlankGrid = [
     [99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
     [99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99],
 ]
+# empty boat grids, will be filled later
 PlacingGrid = []
 P1Boats = []
 P2Boats = []
 
+# function to switch game screen, also prints for debug
 def switch(screen):
     global game_screen
     game_screen = screen
@@ -525,8 +532,8 @@ playersReady = 0
 
 prompt_cd = 0
 
-StoredBoats = [1, 1, 1, 1, 1]
-BoatRotation = [0, 0, 0, 0, 0]
+StoredBoats = [1, 1, 1, 1, 1] #checks which boats are on field during placement
+BoatRotation = [0, 0, 0, 0, 0] # stores boat directions during placement, 0 to the right, 1 to the left
 selected_boat = 0
 cur_boat_len = 2
 selected_cell = pygame.Vector2(0,0)
@@ -880,6 +887,7 @@ while running:
     elif game_screen == "credits":
         screen.blit(pygame.transform.scale(ocean_screen, (1280*scale, 720*scale)), (0, 0))
         screen.blit(big_Board_img, (0, 0))
+        screen.blit(credits_img, (0, 0))
 
         if backButton.draw(hud):
             pygame.mixer.Sound.play(blip)
@@ -952,6 +960,9 @@ while running:
             pygame.mixer.Sound.play(blip)
             switch("main")
     
+    # This module redirects users to the next screen based on certain criteria.
+    # All decision-making concerning which screen to use is done here in order to see where each screen goes with certain conditions.
+    # Does not involve first few screens as they move in a more linear fashion, with the main menu as a pseudo-hub
     elif game_screen == "page router":
         if inGame == False: #if not in game i.e. setting up new game
             #reset vars for boat placement screens
@@ -999,7 +1010,9 @@ while running:
             BoatRotation = [0, 0, 0, 0, 0]
             PlacingGrid = copy.deepcopy(BlankGrid)
         else: #if currently in game
-            if turn != 0:
+            # check game ending conditions
+            if turn != 0: #only do this once the first turn has passed
+                # if in 1 Player and the player has run out of time
                 if selectedPlayerMode == False and time_enabled == True and P1Time <= 0:
                     playerHitCount = 0
                     for sl in P2Boats:
@@ -1028,6 +1041,7 @@ while running:
                         loser = "AI"
                         quote = random.choice(["The toaster is broken.", "Who's the old dog now?", "Not so tough after all.",
                                               "Robots don't belong in water.", "Someone missed a software update.", "Your circuits are fried."])
+                # if in 2 Player and both players have run out of time
                 if time_enabled == True and P1Time <= 0 and P2Time <= 0:
                     player1HitCount = 0
                     for sl in P2Boats:
@@ -1049,6 +1063,7 @@ while running:
                         loser = "Player 2"
                         quote = random.choice(["Who's the old dog now?", "Not so tough after all.", "Sometimes you gotta get your hands dirty.",
                                           "That's why they put me in charge.", "There's some things you just can't teach.", "Like fish in a barrel."])
+                # if all boats of player 1 have been sunk
                 if P1Boats_sunk == [1, 1, 1, 1, 1]:
                     loser = "Player 1"
                     if selectedPlayerMode == False:
@@ -1066,6 +1081,7 @@ while running:
                         winner = "Player 2"
                         quote = random.choice(["Who's the old dog now?", "Not so tough after all.", "Sometimes you gotta get your hands dirty.",
                                           "That's why they put me in charge.", "There's some things you just can't teach.", "Like fish in a barrel."])
+                # if all boats of player 2/AI have been sunk
                 if P2Boats_sunk == [1, 1, 1, 1, 1]:
                     winner = "Player 1"
                     if selectedPlayerMode == False:
@@ -1078,6 +1094,7 @@ while running:
                                           "That's why they put me in charge.", "There's some things you just can't teach.", "Like fish in a barrel."])
 
             turn += 1 #on init turn is 0, first turn changes to 1
+            # set anim vars
             mov_cd = 0
             nuke_anim = False
             nuke_anim2 = False
@@ -1085,8 +1102,9 @@ while running:
             rounded_nuke_ticks = 0
             door_anim = False
             door_ticks = 0
-            if winner == "undecided":
+            if winner == "undecided": #if no winner currently (game still in progress)
                 if turn == 1: #on first turn
+                    # init game vars
                     selected_cell = pygame.Vector2(0,0)
                     pygame.mixer.music.stop()
                     pygame.mixer.music.unload()
@@ -1118,49 +1136,50 @@ while running:
                     door_ticks = 0
                 else:
                     if selectedPlayerMode == False: # one player mode
-                        if turn % 2 == 1:
+                        if turn % 2 == 1: #Player 1 takes odd turns
                             anim_ticks = 0
                             rounded_anim_ticks = 0
                             switch("P1Game")
-                        else:
+                        else: #AI takes even turns
                             anim_ticks = 0
                             rounded_anim_ticks = 0
                             switch("AI Turn")
                     else: # two player mode
                         door_anim = True
-                        if turn % 2 == 1:
-                            if time_enabled == True:
-                                if P1Time > 0:
+                        if turn % 2 == 1: #Player 1 takes odd turns
+                            if time_enabled == True: #if timed mode enabled
+                                if P1Time > 0: #if timer still above 0
                                     anim_ticks = 0
                                     rounded_anim_ticks = 0
                                     switch("P1Switch")
-                                else:
+                                else: #if ran out of time
                                     turn+=1
                                     door_anim = False
                                     nuke_ticks = 0
                                     rounded_nuke_ticks = 0
                                     switch("P2Game")
-                            else:
+                            else: #if timed mode disabled
                                 anim_ticks = 0
                                 rounded_anim_ticks = 0
                                 switch("P1Switch")
-                        else:
-                            if time_enabled == True:
-                                if P2Time > 0:
+                        else: #Player 2 takes odd turns
+                            if time_enabled == True: #if timed mode enabled
+                                if P2Time > 0: #if timer still above 0
                                     anim_ticks = 0
                                     rounded_anim_ticks = 0
                                     switch("P2Switch")
-                                else:
+                                else: #if ran out of time
                                     turn+=1
                                     door_anim = False
                                     nuke_ticks = 0
                                     rounded_nuke_ticks = 0
                                     switch("P1Game")
-                            else:
+                            else: #if timed mode disabled
                                 anim_ticks = 0
                                 rounded_anim_ticks = 0
                                 switch("P2Switch")
             else: #if someone has won the game
+                # calculate win stats
                 inGame = False
                 door_ticks = 0
                 door_anim = True
@@ -1980,9 +1999,10 @@ while running:
             rounded_anim_ticks = round(anim_ticks)
         else:
             if difficulty == "Easy":
+                # merns algorithm
                 while True:
                     decision = random.randint(0, 99)
-                    if decision in AI_hit_reg:
+                    if decision in AI_hit_reg: #if cell already hit, re-generate cell
                         pass
                     else:
                         AI_hit_reg.append(decision)
@@ -1991,14 +2011,15 @@ while running:
                         P1Boats[y][x] += 5
                         Prev_action.append(decision)
                         if P1Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                            # get another turn if hits a boat
                             pass
                         else:
                             switch("page router")
                             break
             elif difficulty == "Hard":
-                if locked_on_ship == False:
+                if locked_on_ship == False: #ship not found
                     while True:
-                        if len(uncleared_cells) > 0:
+                        if len(uncleared_cells) > 0: #if a cell is still unresolved after sinking a ship, lock on that cell (if ships are bunched up)
                             locked_on_ship = True
                             lock_coords = pygame.Vector2(uncleared_cells[0]%10, (uncleared_cells[0]-(uncleared_cells[0]%10))/10)
                             OG_coords = pygame.Vector2(uncleared_cells[0]%10, (uncleared_cells[0]-(uncleared_cells[0]%10))/10)
@@ -2006,14 +2027,17 @@ while running:
                             found_dir = 0
                             double_check = 0
                             break
-
+                        # unfairness multipler used to speed up games for dev testing, automatically knows the locaiton of a ship
+                        # if the unfairness value is higher than the generated value, then trigger cheat (0 for disable, 10 for always unfair)
                         if unfairness_multiplier > random.randint(0, 9):
+                            #generate cells until a ship is found
                             decision = random.randint(0, 99)
                             if decision in AI_hit_reg:
                                 pass
                             else:
                                 x = int(decision % 10)
                                 y = int((decision - x) / 10)
+                                # if boat hit, hit boat, else re-generate cell
                                 if P1Boats[y][x] in [10, 11, 20, 21, 22, 30, 31, 32, 40, 41, 42, 43, 50, 51, 52, 53, 54]:
                                     AI_hit_reg.append(decision)
                                     P1Boats[y][x] += 5
@@ -2026,22 +2050,25 @@ while running:
                                     double_check = 0
                                     uncleared_cells = [10*y+x]
                                     break
-                        else:
+                        else: #if cheat opportunity fails or is disabled
                             offset = random.randint(0, 1)
                             row = random.randint(0, 4)
                             column = random.randint(0, 4)
+                            # generate cells in a checkboard pattern
 
                             true_row = 2*row + offset
                             true_column = 2*column + offset
                             true_loc = true_row*10+true_column
-                            if true_loc in AI_hit_reg:
+                            # translate generated cell to list index
+                            if true_loc in AI_hit_reg: #if cell already hit, re-generate cell
                                 pass
-                            else:
+                            else: #if cell not hit, hit cell
                                 AI_hit_reg.append(true_loc)
                                 x = true_column
                                 y = true_row
                                 P1Boats[y][x] += 5
                                 Prev_action.append(10*y+x)
+                                # if boat hit, refund turn and lock on cell
                                 if P1Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     locked_on_ship = True
                                     lock_coords = pygame.Vector2(x, y)
@@ -2051,36 +2078,47 @@ while running:
                                     double_check = 0
                                     uncleared_cells = [10*y+x]
                                     break
-                                else:
+                                else: #if miss, end turn
                                     switch("page router")
                                     break
-                if locked_on_ship == True:
+                if locked_on_ship == True: #ship found
                     x = int(lock_coords.x)
                     y = int(lock_coords.y)
+                    # save lock coords
+                    # when found_dir == 0, AI is still trying to find the orientation of the boat
+                    # direction key:
+                    # 1: up to the right
+                    # 2: down to the right
+                    # 3: down to the left
+                    # 4: up to the left
                     if found_dir == 0:
                         while True:
                             if check_dir == 1:
+                                # if cell in direction 1 is either off board or already hit
                                 if y == 0 or P1Boats[y-1][x] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     check_dir = 2
                                     lock_coords = OG_coords
+                                # else if cell is not already hit
                                 elif not 10*(y-1)+x in AI_hit_reg:
+                                    # try to hit the cell
                                     AI_hit_reg.append(10*(y-1)+x)
                                     P1Boats[y-1][x] += 5
                                     Prev_action.append(10*(y-1)+x)
+                                    # if a ship is found, keep on hitting that direction
                                     if P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                         found_dir = 1
                                         uncleared_cells.append(10*(y-1)+x)
                                         lock_coords = pygame.Vector2(x, y-1)
                                         break
-                                    else:
+                                    else: #if a ship not found, check next direction
                                         check_dir = 2
                                         lock_coords = OG_coords
                                         switch("page router")
                                         break
-                                else:
+                                else: #if neither case passes, then check next direction (this should not trigger, but is there if system fails)
                                     check_dir = 2
                                     lock_coords = OG_coords
-                            elif check_dir == 2:
+                            elif check_dir == 2: #follows same logic as first dir, except checks second dir
                                 if x == 9 or P1Boats[y][x+1] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     check_dir = 3
                                     lock_coords = OG_coords
@@ -2101,7 +2139,7 @@ while running:
                                 else:
                                     check_dir = 3
                                     lock_coords = OG_coords
-                            elif check_dir == 3:
+                            elif check_dir == 3: #follows same logic as first dir, except checks third dir
                                 if y == 9 or P1Boats[y+1][x] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     check_dir = 4
                                     lock_coords = OG_coords
@@ -2122,9 +2160,10 @@ while running:
                                 else:
                                     check_dir = 4
                                     lock_coords = OG_coords
-                            elif check_dir == 4:
+                            elif check_dir == 4: #follows similar logic as first dir, except checks fourth dir
                                 if x == 0 or P1Boats[y][x-1] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                                    locked_on_ship = False
+                                    # this should not trigger, but just in case
+                                    locked_on_ship = False 
                                     uncleared_cells.pop(0)
                                     break
                                 elif not 10*y+(x-1) in AI_hit_reg:
@@ -2137,33 +2176,43 @@ while running:
                                         lock_coords = pygame.Vector2(x-1, y)
                                         break
                                     else:
+                                        # this should not trigger, but just in case
                                         locked_on_ship = False
                                         switch("page router")
                                         break
-                    else:
+                    else: #if orientation found
                         lock = True
                         while lock:
                             x = int(lock_coords.x)
                             y = int(lock_coords.y)
+                            # save lock coords
+                            # direction key:
+                            # 1: up to the right
+                            # 2: down to the right
+                            # 3: down to the left
+                            # 4: up to the left
                             if found_dir == 1:
                                 if y == 0 or P1Boats[y-1][x] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
+                                    # if next cell is off screen or already hit, backtrack and hit opposite direction
                                     found_dir = 3
                                     lock_coords = OG_coords
                                     double_check += 1
-                                else:
+                                else: # try to hit cell
                                     AI_hit_reg.append(10*(y-1)+x)
                                     P1Boats[y-1][x] += 5
                                     Prev_action.append(10*(y-1)+x)
+                                    # if boat hit, update lock coords and hit next
                                     if P1Boats[y-1][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                         lock_coords = pygame.Vector2(x, y-1)
                                         uncleared_cells.append(10*(y-1)+x)
                                     else:
+                                        # if miss, backtrack and hit opposite direction, end turn
                                         found_dir = 3
                                         lock_coords = OG_coords
                                         double_check += 1
                                         switch("page router")
                                         lock = False
-                            elif found_dir == 2:
+                            elif found_dir == 2: #follows same logic as first dir, but checks second dir
                                 if x == 9 or P1Boats[y][x+1] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     found_dir = 4
                                     lock_coords = OG_coords
@@ -2181,7 +2230,7 @@ while running:
                                         double_check += 1
                                         switch("page router")
                                         lock = False
-                            elif found_dir == 3:
+                            elif found_dir == 3: #follows same logic as first dir, but checks third dir
                                 if y == 9 or P1Boats[y+1][x] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     found_dir = 1
                                     lock_coords = OG_coords
@@ -2199,7 +2248,7 @@ while running:
                                         double_check += 1
                                         switch("page router")
                                         lock = False
-                            elif found_dir == 4:
+                            elif found_dir == 4: #follows same logic as first dir, but checks fourth dir
                                 if x == 0 or P1Boats[y][x-1] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                                     found_dir = 2
                                     lock_coords = OG_coords
@@ -2217,6 +2266,7 @@ while running:
                                         double_check += 1
                                         switch("page router")
                                         lock = False
+                            # check if a boat has been sunk, if yes then release lockon ship
                             if any(15 in sl for sl in P1Boats) and any(16 in sl for sl in P1Boats) and P1Boats_sunk[0] == 0:
                                 locked_on_ship = False
                                 double_check -= 1
@@ -2247,6 +2297,7 @@ while running:
                                 P1Boats_sunk[4] = 1
                                 print("sunk carrier")
                                 lock = False
+                            # resolve cells that have been sunk
                             for i in uncleared_cells:
                                 cell = P1Boats[int((i-(i%10))/10)][int(i%10)]
                                 if (cell in [15, 16] and P1Boats_sunk[0] == 1)\
@@ -2255,13 +2306,14 @@ while running:
                                      or (cell in [45, 46, 47, 48] and P1Boats_sunk[3] == 1)\
                                      or (cell in [55, 56, 57, 58, 59] and P1Boats_sunk[4] == 1):
                                     uncleared_cells.remove(i)
+                            # if checked both directions and no ship sunk, unlock and resolve cases
                             if double_check == 2:
                                 locked_on_ship = False
                                 double_check = 0
                                 lock = False
 
     elif game_screen == "P1Game":
-
+        # render background and pause button
         screen.blit(metal_screen, (0, 0))
 
         if pause_button.draw(hud):
@@ -2290,9 +2342,10 @@ while running:
                             99: "blank"
                             }
         
-        
+        # grab pressed keys
         keys = pygame.key.get_pressed()
 
+        # devtesting, automatically lose/win by holding corresponding buttons
         if devmode == 1 and keys[pygame.K_l]:
             dev_sustain +=1 * 60 * dt
             if dev_sustain > 30:
@@ -2309,6 +2362,7 @@ while running:
         elif not keys[pygame.K_l]:
             dev_sustain = 0
         
+        # if move cooldown finished, and no animations are playing, move cursor. make sure that cursor does not go offscreen
         if mov_cd <= 0 and nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False\
             and cruiser_sink_anim == False and battleship_sink_anim == False and carrier_sink_anim == False:
             if (keys[pygame.K_w] or keys[pygame.K_UP]) and selected_cell.y > 0:
@@ -2324,18 +2378,20 @@ while running:
                 selected_cell.x += 1
                 mov_cd = 10
 
-        mov_cd -= 1 * 60 * dt
+        mov_cd -= 1 * 60 * dt # decrease move cooldown
 
+        #if shift button pressed, then set cooldown to half normal value when above half normal value
         if mov_cd > 5 and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
             mov_cd = 5
 
+        # render grid labels
         if selectedPlayerMode == False:
             leftRender.blit(computer_gridlabel, (160, 40))
         else:
             leftRender.blit(player2_gridlabel, (160, 40))
         rightRender.blit(player1_gridlabel, (160, 40))
 
-        # left render
+        # left render (Aaron Module)
         for y, row in enumerate(P2Boats):
             for x, tile in enumerate(row):
                 xdil = 16
@@ -2650,7 +2706,7 @@ while running:
                 else:
                     leftRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
 
-        # right render
+        # right render (Aaron Module)
         for y, row in enumerate(P1Boats):
             for x, tile in enumerate(row):
                 xdil = 16
@@ -2774,6 +2830,7 @@ while running:
                 else:
                     rightRender.blit(pygame.transform.flip(tile_sprite, True, False), (144+x*xdil-y*xdil, 10+x*ydil+y*ydil))
         
+        # animation constants (Aaron)
         t = 60
         scale = 10
         diff = 45/t
@@ -2781,7 +2838,7 @@ while running:
             delay = 110
         else:
             delay = 90
-        if rounded_anim_ticks <= delay:
+        if rounded_anim_ticks <= delay: #static, focus right grid
             if turn != 1 and nuke_anim2 == False:
                 hud.blit(turn_banner_Opp, (0, 0))
             left_size = screen.get_width()/2 + scale*(1 - (0.5*t)*diff)
@@ -2790,6 +2847,7 @@ while running:
             right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
             anim_ticks += 1*dbltime * 60 * dt
             rounded_anim_ticks = round(anim_ticks)
+            # animation nukes on right grid
             if nuke_anim2 == True:
                 j = int(target_cell.y)
                 i = int(target_cell.x)
@@ -2863,9 +2921,11 @@ while running:
                         rightOverlay.blit(pygame.transform.scale_by(splash_img, (0.75, 0.75)), (134+i*xdil-j*xdil+2, 37+i*ydil+j*ydil))
 
         elif delay < rounded_anim_ticks <= delay + t:
+            # check that there are not more actions to display (Aaron)
             if Prev_action != [] and nuke_anim2 == True:
-                Prev_action.pop(0)
+                Prev_action.pop(0) #remove action once displayed (Aaron)
             if Prev_action != []:
+                #show action if available (Aaron)
                 x = int(Prev_action[0] % 10)
                 y = int((Prev_action[0]-x)/10)
                 target_cell = pygame.Vector2(x, y)
@@ -2873,7 +2933,8 @@ while running:
                 pre_turn_sounds = [0]
                 anim_ticks = 0
                 rounded_anim_ticks = 0
-            else:
+            else: #if all actions displayed, move to player turn
+                # shown sunken boats (Aaron)
                 if P1Boats_sunk[0] == 1 and P1Boats_sunk_visible[0] == 0:
                     P1Boats_sunk_visible[0] = 1
                 elif P1Boats_sunk[1] == 1 and P1Boats_sunk_visible[1] == 0:
@@ -2884,10 +2945,12 @@ while running:
                     P1Boats_sunk_visible[3] = 1
                 elif P1Boats_sunk[4] == 1 and P1Boats_sunk_visible[4] == 0:
                     P1Boats_sunk_visible[4] = 1
+                # if Player 1 lost in 1 player mode
                 if selectedPlayerMode == False and door_anim == False and P1Boats_sunk_visible == [1, 1, 1, 1, 1]:
                     door_anim = True
                     door_sounds = [0]
                     door_ticks = 0
+                # change grid sizes, move to left grid focus (Aaron)
                 hud.blit(turn_banner_You, (0, 0))
                 nuke_anim2 = False
                 left_size = screen.get_width()/2 + scale*(1 - (0.5*t - (rounded_anim_ticks - delay))*diff)
@@ -2896,9 +2959,11 @@ while running:
                 right_pos = pygame.Vector2(1225-right_size, 670-(right_size*0.69))
                 anim_ticks += 1*dbltime * 60 * dt
                 rounded_anim_ticks = round(anim_ticks)
-        else:
+        else: #player action phase
+            # if no animations playing
             if nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False\
                 and cruiser_sink_anim == False and battleship_sink_anim == False and carrier_sink_anim == False:
+                # render cursor
                 x = selected_cell.x
                 y = selected_cell.y
                 if P2Boats[int(selected_cell.y)][int(selected_cell.x)] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
@@ -2906,26 +2971,32 @@ while running:
                 else:
                     leftOverlay.blit(cursorC, (144+x*xdil-y*xdil, -13+x*ydil+y*ydil))
                 if door_anim == False and (P2Boats_sunk == [1, 1, 1, 1, 1] or (time_enabled == True and P1Time <= 0)):
+                    # check if end game conditions met (if all Player 2 boats sunk or ran out of time)
                     door_anim = True
                     door_sounds = [0]
                     door_ticks = 0
-
+            # if player tries to fire nuke (only when no animations playing)
             if (keys[pygame.K_SPACE] or keys[pygame.K_e]) and nuke_anim == False and destroyer_sink_anim == False and submarine_sink_anim == False\
                 and cruiser_sink_anim == False and battleship_sink_anim == False and carrier_sink_anim == False:
+                #if player tries to hit an already hit cell
                 if P2Boats[int(selected_cell.y)][int(selected_cell.x)] in [5, 15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
-                    pass
-                else:
+                    pass 
+                else: #if player tries to hit an untouched cell
+                    # start nuke animation (Aaron) (cell ID change handled below)
                     nuke_anim = True
                     nuke_ticks = 0
                     rounded_nuke_ticks = 0
                     sink_anim_ticks = 0
                     nuke_sounds = [0]
+                    # append animation for player 2 (Aaron)
                     Prev_action2.append(selected_cell.y*10 + selected_cell.x)
 
-            if nuke_anim == True:
+            if nuke_anim == True: #when nuke animation is playing
+                # save targeted coords
                 x = int(selected_cell.x)
                 y = int(selected_cell.y)
                 target_cell = pygame.Vector2(x, y)
+                # play animations and sounds (Aaron)
                 if rounded_nuke_ticks <= 30:
                     leftOverlay.blit(pygame.transform.scale_by(nuke_img, (0.4, 0.4)), (144+x*xdil-y*xdil+2, (-13+x*ydil+y*ydil) - 5*(30-rounded_nuke_ticks)))
                 if P2Boats[y][x] in [10, 11, 20, 21, 22, 30, 31, 32, 40, 41, 42, 43, 50, 51, 52, 53, 54]:
@@ -2995,12 +3066,17 @@ while running:
                             splash_img = splash_frame_12
                         leftOverlay.blit(pygame.transform.scale_by(splash_img, (0.75, 0.75)), (134+x*xdil-y*xdil+2, -12+x*ydil+y*ydil))
 
+                # update anim tick (Aaron)
                 nuke_ticks += 1*dbltime * 60 * dt
                 rounded_nuke_ticks = round(nuke_ticks)
 
+                # when animation finished, handle events
                 if rounded_nuke_ticks > 120:
+                    # hit cell
                     P2Boats[y][x] += 5
+                    # end animation
                     nuke_anim = False
+                    # check for sunken boats, record info and play sink animation
                     if any(15 in sl for sl in P2Boats) and any(16 in sl for sl in P2Boats) and P2Boats_sunk[0] == 0:
                         destroyer_sink_anim = True
                         P2Boats_sunk[0] = 1
@@ -3016,19 +3092,22 @@ while running:
                     elif any(55 in sl for sl in P2Boats) and any(56 in sl for sl in P2Boats) and any(57 in sl for sl in P2Boats) and any(58 in sl for sl in P2Boats) and any(59 in sl for sl in P2Boats) and P2Boats_sunk[4] == 0:
                         carrier_sink_anim = True
                         P2Boats_sunk[4] = 1
+                    # refund turn on hit else end turn
                     if P2Boats[y][x] in [15, 16, 25, 26, 27, 35, 36, 37, 45, 46, 47, 48, 55, 56, 57, 58, 59]:
                         pass
                     else:
                         Prev_action = []
-                        if selectedPlayerMode == True:
-                            if time_enabled == True and P2Time <= 0:
+                        if selectedPlayerMode == True: #two player
+                            if time_enabled == True and P2Time <= 0: #if Player two has run out of time, switch to page router to register turn, then come back
                                 switch("page router")
-                            else:
+                            else: #play door anim, then switch to page router
                                 door_anim = True
                                 door_sounds = [0]
                         else:
+                            # switch to page router, then AI turn
                             switch("page router")
 
+            # play sinking animations (Aaron)
             if destroyer_sink_anim == True:
                 sink_anim_ticks += 1*dbltime * 60 * dt
                 
@@ -3088,7 +3167,8 @@ while running:
 
                 if sink_anim_ticks > 120:
                     carrier_sink_anim = False
-                    
+
+        # render hud (Aaron)
         if selectedPlayerMode == False:
             if difficulty == "Easy":
                 hud.blit(hud_P1A1_img, (0, 0))
@@ -3097,19 +3177,21 @@ while running:
         else:
             hud.blit(hud_P1P2_img, (0, 0))
         
+        # when timed mode is on (Gokul)
         if time_enabled == True:
             hud.blit(hud_time_img, (0, 0))
 
             if door_anim == False and nuke_anim == False and nuke_anim2 == False and rounded_anim_ticks > delay + t:
-                P1Time -= dt  # Subtract time since last frame
+                P1Time -= dt  # Subtract time since last frame, only do this when no animations are playing (except for sinks)
 
-                # Calculate minutes and seconds
+            # Calculate minutes and seconds
             minutes = max(P1Time // 60, 0)  # Ensure minutes are not negative
             seconds = max(P1Time % 60, 0) # Ensure seconds are not negative
             
             timer_text = font3.render(f"{int(minutes):02d}:{int(seconds):02d}", True, (0, 0, 0))
             hud.blit(timer_text, (SCREEN_WIDTH // 2 - timer_text.get_width() // 2, 3))
         
+        # control icons (Aaron)
         control_text = [
             "-Move Cursor",
             "-Move Quicker",
@@ -3131,6 +3213,7 @@ while running:
                 draw_text(f"{control_text[k]}", font5, (0, 0, 0), 530+130*k, 690)
             k += 1
 
+        # door animation (Aaron)
         if door_anim == True:
             
             f = 2
